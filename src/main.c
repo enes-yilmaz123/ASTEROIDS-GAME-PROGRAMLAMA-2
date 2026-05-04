@@ -94,6 +94,21 @@ int main(int argc, char *argv[]) {
         gemiX += gemiHizX;
         gemiY += gemiHizY;
 
+        //sağdan girerse soldan çıkar, soldan girerse sağdan çıkar
+        if(gemiX > EKRAN_GENISLIK) {
+            gemiX = -GEMI_GENISLIK;
+        }
+        else if(gemiX < -GEMI_GENISLIK) {
+            gemiX = EKRAN_GENISLIK;
+        }
+        // aşağıdan girerse yukarı çıkar, yukarıdan girerse aşağı çıkar
+        if(gemiY > EKRAN_YUKSEKLIK) {   
+            gemiY = -GEMI_YUKSEKLIK;
+        }
+        else if(gemiY < -GEMI_YUKSEKLIK) {
+            gemiY = EKRAN_YUKSEKLIK;
+        }
+
         SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);  //arka plan rengi
         SDL_RenderClear(renderer); // ekranı boyar
 
