@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-
 #define EKRAN_GENISLIK 1000
 #define EKRAN_YUKSEKLIK 800
 #define GEMI_GENISLIK 30
@@ -9,7 +8,7 @@
 
 int main(int argc, char *argv[]) {
     
-    //sdl başlatıldı
+    // sdl başlatıldı
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL baslatilamadi! Hata =  %s\n", SDL_GetError());
         return 1;
@@ -21,7 +20,7 @@ int main(int argc, char *argv[]) {
                                           SDL_WINDOWPOS_CENTERED, 
                                           EKRAN_GENISLIK, EKRAN_YUKSEKLIK, 0);
     
-    //pencere kontrolü                                      
+    // pencere kontrolü                                      
     if (!window) {
         printf("Pencere olusturulamadi Hata = %s \n", SDL_GetError());
         SDL_Quit();
@@ -36,6 +35,16 @@ int main(int argc, char *argv[]) {
         SDL_Quit();
         return 1;
     }
+    
+    SDL_Rect gemi; // gemi için dikdörtgen tanımlandı
+    gemi.w = GEMI_GENISLIK;
+    gemi.h = GEMI_YUKSEKLIK;
+
+    float gemiX = (EKRAN_GENISLIK - GEMI_GENISLIK)/2; // geminin başlangıç konumu x ekseninde
+    float gemiY = (EKRAN_YUKSEKLIK - GEMI_YUKSEKLIK)/2; 
+
+    float gemiHizX = 0; // geminin başlangıç hızı x ekseninde
+    float gemiHizY = 0; 
 
     // oyun döngüsü kontrol değişkeni oluşturuldu
     int calisiyor = 1; 
@@ -44,29 +53,57 @@ int main(int argc, char *argv[]) {
     // oyun döngüsü 
     while (calisiyor) {
 
-
         while (SDL_PollEvent(&event)) {
             // pencerenin kapatma tuşuna basınca SDL_QUIT olayı tetiklenir
-            if (event.type == SDL_QUIT) {
+            if (event.type == SDL_QUIT) 
+            {
                 calisiyor = 0;
             }
+            else if(event.type == SDL_KEYDOWN){
+                switch(event.key.keysym.sym)
+                {
+                    case SDLK_w:
+                        gemiHizY = -3; // yukarı hareket
+                        break;
+                    case SDLK_s:
+                        gemiHizY = 3; // aşağı hareket
+                        break;
+                    case SDLK_a:
+                        gemiHizX = -3; // sola hareket
+                        break;
+                    case SDLK_d:
+                        gemiHizX = 3; // sağa hareket
+                        break;
+                }
+            }
+            else if(event.type == SDL_KEYUP){
+                switch(event.key.keysym.sym)
+                {
+                    case SDLK_w:
+                    case SDLK_s:
+                        gemiHizY = 0; // dikey hareket durdur
+                        break;
+                    case SDLK_a:
+                    case SDLK_d:
+                        gemiHizX = 0; // yatay hareket durdur
+                        break;
+                }
+            }
         }
-
+        // geminin konumunu hızına göre güncelle
+        gemiX += gemiHizX;
+        gemiY += gemiHizY;
 
         SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);  //arka plan rengi
         SDL_RenderClear(renderer); // ekranı boyar
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // gemi için beyaz renk
 
-        SDL_Rect gemi; // gemi için dikdörtgen tanımlandı
-
-        gemi.x = (EKRAN_GENISLIK - GEMI_GENISLIK)/2; // gemiyi ekranın ortasına yerleştir
-        gemi.y = (EKRAN_YUKSEKLIK - GEMI_YUKSEKLIK)/2;
-        gemi.w = GEMI_GENISLIK;
-        gemi.h = GEMI_YUKSEKLIK;
+        //geminin kordinatlarını güncelle ve boyutlarını ayarla
+        gemi.x = (int)gemiX; 
+        gemi.y = (int)gemiY;
 
         SDL_RenderFillRect(renderer, &gemi); // gemiyi çiz
-
 
         //çizilen her şeyi ekrana yansıt
         SDL_RenderPresent(renderer);
