@@ -3,7 +3,8 @@
 #include "gemi.h"
 #include "mermi.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
     // sdl başlatıldı
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -15,10 +16,7 @@ int main(int argc, char *argv[]) {
                                           SDL_WINDOWPOS_CENTERED, 
                                           SDL_WINDOWPOS_CENTERED, 
                                           EKRAN_GENISLIK, EKRAN_YUKSEKLIK, 0);
-    if (!window) {
-        SDL_Quit();
-        return 1;
-    }                                      
+    if (!window) { SDL_Quit(); return 1; }                                      
                                        
     // boyama işlemi için renderer oluşturuldu
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -32,6 +30,8 @@ int main(int argc, char *argv[]) {
 
     gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
     mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
+
+    const Uint8 *tuslar = SDL_GetKeyboardState(NULL); // klavye durumunu tutacak pointer oluşturuldu
     // oyun döngüsü 
     while (calisiyor) {
         while (SDL_PollEvent(&event)) {
@@ -40,51 +40,21 @@ int main(int argc, char *argv[]) {
             {
                 calisiyor = 0;
             }
-            else if(event.type == SDL_KEYDOWN)
+            if (event.type == SDL_KEYDOWN)
             {
-                switch(event.key.keysym.sym)
+                if (event.key.keysym.sym == SDLK_SPACE)
                 {
-                    case SDLK_w:
-                        gemi_yon_degistir(&uzaygemisi,0,-1);
-                        // w ye basıldığında yukarı haraket et ve yön değişkenini değiştir
-                        break;
-                    case SDLK_s:
-                        gemi_yon_degistir(&uzaygemisi, 0, 1); // geminin yönünü aşağı yap
-                        // s ye basıldığında aşağı haraket et ve yön değişkenini değiştir
-                        break;
-                    case SDLK_a:
-                        gemi_yon_degistir(&uzaygemisi, -1, 0); // geminin yönünü sola yap
-                        // a ya basıldığında sola haraket et ve yön değişkenini değiştir
-                        break;
-                    case SDLK_d:
-                        gemi_yon_degistir(&uzaygemisi, 1, 0);
-                        // d ye basıldığında sağa haraket et ve yön değişkenini değiştir
-                        break;
-                    case SDLK_SPACE: 
-                    mermi_atesleme(mermiler, &uzaygemisi); 
-                    break;
-                }
-            }
-            else if(event.type == SDL_KEYUP)
-            {
-                switch(event.key.keysym.sym)
-                {
-                    case SDLK_w:
-                    case SDLK_s:
-                        uzaygemisi.hizY = 0; // dikey hareket durdur
-                        break;
-                    case SDLK_a:
-                    case SDLK_d:
-                        uzaygemisi.hizX = 0; // yatay hareket durdur
-                        break;
+                    mermi_atesleme(mermiler, &uzaygemisi);
                 }
             }
         }
-        // geminin konumunu güncellemek için fonksyonu çağırırız
+        gemi_kontrol(&uzaygemisi, tuslar); // klavyenin anlık durumunu kontrol etden ve haraketleri yöneten fonksiyon 
+
         gemi_hareket_et(&uzaygemisi); // bu fonksiyon bize geminin yeni konumunu güncelleyecek
 
         mermileri_guncelle(mermiler); // mermilerin konumunu güncellemek için fonksyonu çağırırız
 
+        // ***------ EKRANA ÇİZME İŞLEMLERİ  -----***
         SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);  //arka plan rengi
         SDL_RenderClear(renderer); // ekranı boyar
 
@@ -93,6 +63,8 @@ int main(int argc, char *argv[]) {
 
         //çizilen her şeyi ekrana yansıt
         SDL_RenderPresent(renderer);
+
+        SDL_Delay(10); // oyun döngüsünün çok hızlı çalışmasını engellemek için kısa bir gecikme ekleyebiliriz yaklaşık 100 fps yapar bu şekilde
     }
 
     //açtığın şeyeleri kapat

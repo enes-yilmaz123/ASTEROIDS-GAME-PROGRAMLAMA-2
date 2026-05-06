@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include "gemi.h"
 
-#define MERMI_GENISLIK 5
+#define MERMI_GENISLIK 4
 #define MERMI_YUKSEKLIK 15
 #define MERMI_HIZ 10
 #define MERMI_KAPASITE 10
