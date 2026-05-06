@@ -5,6 +5,8 @@ void gemi_baslangic(struct Gemi *gemiPtr) {
     gemiPtr->y = (EKRAN_YUKSEKLIK - GEMI_YUKSEKLIK)/2;
     gemiPtr->hizX = 0;
     gemiPtr->hizY = 0;
+    gemiPtr->yonX = 0;
+    gemiPtr->yonY = -1; // başlangıçta yukarı bakacak şekilde yön verilir
     gemiPtr->sekil.w = GEMI_GENISLIK;
     gemiPtr->sekil.h = GEMI_YUKSEKLIK;
 }
@@ -44,4 +46,23 @@ void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr)
     //ekrana gemi çizildi
     SDL_RenderFillRect(renderer, &gemiPtr->sekil);
     //ekranı yenileme işlemi main.c de yapılacak biz sadece geminin çizimini yazıyoru burada
+}
+void gemi_yon_degistir(struct Gemi *gemiPtr, float yeniYonX, float yeniYonY) 
+{
+    gemiPtr->yonX = yeniYonX; //geminin yönünü temp olarak tutarız
+    gemiPtr->yonY = yeniYonY;
+
+    gemiPtr->hizX = yeniYonX * GEMI_HIZ;   //geminin hızını yeni yönüne göre güncelleriz
+    gemiPtr->hizY = yeniYonY * GEMI_HIZ;
+
+    if(gemiPtr->yonY == 1 || gemiPtr->yonY == -1)
+    {
+        gemiPtr->sekil.w = GEMI_GENISLIK; //geminin yönüne göre şeklini belirleriz
+        gemiPtr->sekil.h = GEMI_YUKSEKLIK;
+    }
+    else
+    {
+        gemiPtr->sekil.w = GEMI_YUKSEKLIK;
+        gemiPtr->sekil.h = GEMI_GENISLIK;
+    }
 }

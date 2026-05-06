@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include "gemi.h"
+#include "mermi.h"
 
 int main(int argc, char *argv[]) {
 
@@ -27,9 +28,10 @@ int main(int argc, char *argv[]) {
     SDL_Event event; // olayları tutacak değişken
 
     struct Gemi uzaygemisi; // gemi structı oluşturuldu
+    Mermi mermiler[MERMI_KAPASITE]; // mermi structı oluşturuldu
 
     gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
-    
+    mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
     // oyun döngüsü 
     while (calisiyor) {
         while (SDL_PollEvent(&event)) {
@@ -38,24 +40,33 @@ int main(int argc, char *argv[]) {
             {
                 calisiyor = 0;
             }
-            else if(event.type == SDL_KEYDOWN){
+            else if(event.type == SDL_KEYDOWN)
+            {
                 switch(event.key.keysym.sym)
                 {
                     case SDLK_w:
-                        uzaygemisi.hizY = -3; // yukarı hareket
+                        gemi_yon_degistir(&uzaygemisi,0,-1);
+                        // w ye basıldığında yukarı haraket et ve yön değişkenini değiştir
                         break;
                     case SDLK_s:
-                        uzaygemisi.hizY = 3; // aşağı hareket
+                        gemi_yon_degistir(&uzaygemisi, 0, 1); // geminin yönünü aşağı yap
+                        // s ye basıldığında aşağı haraket et ve yön değişkenini değiştir
                         break;
                     case SDLK_a:
-                        uzaygemisi.hizX = -3; // sola hareket
+                        gemi_yon_degistir(&uzaygemisi, -1, 0); // geminin yönünü sola yap
+                        // a ya basıldığında sola haraket et ve yön değişkenini değiştir
                         break;
                     case SDLK_d:
-                        uzaygemisi.hizX = 3; // sağa hareket
+                        gemi_yon_degistir(&uzaygemisi, 1, 0);
+                        // d ye basıldığında sağa haraket et ve yön değişkenini değiştir
                         break;
+                    case SDLK_SPACE: 
+                    mermi_atesleme(mermiler, &uzaygemisi); 
+                    break;
                 }
             }
-            else if(event.type == SDL_KEYUP){
+            else if(event.type == SDL_KEYUP)
+            {
                 switch(event.key.keysym.sym)
                 {
                     case SDLK_w:
@@ -70,13 +81,15 @@ int main(int argc, char *argv[]) {
             }
         }
         // geminin konumunu güncellemek için fonksyonu çağırırız
-        gemi_hareket_et(&uzaygemisi); 
-        // bu fonksiyon bize geminin yeni konumunu güncelleyecek
+        gemi_hareket_et(&uzaygemisi); // bu fonksiyon bize geminin yeni konumunu güncelleyecek
+
+        mermileri_guncelle(mermiler); // mermilerin konumunu güncellemek için fonksyonu çağırırız
 
         SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);  //arka plan rengi
         SDL_RenderClear(renderer); // ekranı boyar
 
         gemi_ciz(renderer, &uzaygemisi); // geminin son kordinatlarını ekrana çizer sadece yansıtmak kalır
+        mermileri_ciz(renderer, mermiler); // mermilerin son kordinatlarını ekrana çizer sadece yansıtmak kalır
 
         //çizilen her şeyi ekrana yansıt
         SDL_RenderPresent(renderer);
