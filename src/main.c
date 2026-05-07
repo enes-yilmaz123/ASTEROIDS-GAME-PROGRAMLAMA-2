@@ -10,6 +10,7 @@
 
 int main(int argc, char *argv[])
 {
+    int puan = 0;
     srand(time(NULL));
     // sdl başlatıldı
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -65,16 +66,24 @@ int main(int argc, char *argv[])
 
         mermileri_guncelle(mermiler); // mermilerin konumunu güncellemek için fonksyonu çağırırız
 
-        //asteroit_guncelle(asteroitler); // asteroitlerin konumunu güncellemek için fonksyonu çağırırız
         //rastgele asteroit üretme işlemi
-        if (rand() % 50 == 0) {
+        if(rand() % 50 == 0)
+        {
             asteroit_uret(asteroitler);
         }
-        asteroit_guncelle(asteroitler);
+
+        asteroit_guncelle(asteroitler); // asteroitlerin konumunu güncellemek için fonksyonu çağırırız
+        
+        if(asteroit_carpisma_kontrol(asteroitler, &uzaygemisi) == 1)
         {
-            printf("GAME OVER.\n");
+            printf("GAME OVER. Puan: %d\n", puan);
             calisiyor = 0; // eğer çarğışma varsa oyunun döngüden çıkarır ve bitirir
         }
+        if(asteroit_carpisma_kontrol_mermi(asteroitler , mermiler) == 1)
+        {
+            puan += 1;   // eğer çarpışma varsa puanı arttır
+        }
+
         
         // ***------ EKRANA ÇİZME İŞLEMLERİ  -----***
         SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);  //arka plan rengi
@@ -86,7 +95,7 @@ int main(int argc, char *argv[])
 
         //çizilen her şeyi ekrana yansıt
         SDL_RenderPresent(renderer);
-
+        SDL_Delay(10);
     }
 
     //açtığın şeyeleri kapat
@@ -96,3 +105,7 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+
+// sıralama şu şekilde olmalı
+// güncelle kontrol et çiz şeklinde olmalı yoksa çok fazla lag oluyor astroid kısmında yaşadım bu problemi 
