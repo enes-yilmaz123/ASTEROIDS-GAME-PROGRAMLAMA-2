@@ -2,10 +2,15 @@
 #include <stdio.h>
 #include "gemi.h"
 #include "mermi.h"
+#include "asteroit.h"
+#include <stdlib.h>
+#include <time.h>
+
+
 
 int main(int argc, char *argv[])
 {
-
+    srand(time(NULL));
     // sdl başlatıldı
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL baslatilamadi! Hata =  %s\n", SDL_GetError());
@@ -25,12 +30,18 @@ int main(int argc, char *argv[])
     int calisiyor = 1; 
     SDL_Event event; // olayları tutacak değişken
 
+    //*********** NESNE OLUŞTURMA İŞLEMLERİ ***********
     struct Gemi uzaygemisi; // gemi structı oluşturuldu
     Mermi mermiler[MERMI_KAPASITE]; // mermi structı oluşturuldu
+    Asteroit asteroitler[ASTEROIT_SAYISI]; // asteroit structı oluşturuldu
 
+    // ********* NESNELERİ BAŞLATMA İŞLEMLERİ **********
     gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
     mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
+    asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
 
+    
+    
     const Uint8 *tuslar = SDL_GetKeyboardState(NULL); // klavye durumunu tutacak pointer oluşturuldu
     // oyun döngüsü 
     while (calisiyor) {
@@ -54,17 +65,28 @@ int main(int argc, char *argv[])
 
         mermileri_guncelle(mermiler); // mermilerin konumunu güncellemek için fonksyonu çağırırız
 
+        //asteroit_guncelle(asteroitler); // asteroitlerin konumunu güncellemek için fonksyonu çağırırız
+        //rastgele asteroit üretme işlemi
+        if (rand() % 50 == 0) {
+            asteroit_uret(asteroitler);
+        }
+        asteroit_guncelle(asteroitler);
+        {
+            printf("GAME OVER.\n");
+            calisiyor = 0; // eğer çarğışma varsa oyunun döngüden çıkarır ve bitirir
+        }
+        
         // ***------ EKRANA ÇİZME İŞLEMLERİ  -----***
         SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);  //arka plan rengi
         SDL_RenderClear(renderer); // ekranı boyar
 
         gemi_ciz(renderer, &uzaygemisi); // geminin son kordinatlarını ekrana çizer sadece yansıtmak kalır
         mermileri_ciz(renderer, mermiler); // mermilerin son kordinatlarını ekrana çizer sadece yansıtmak kalır
+        asteroit_ciz(renderer, asteroitler); // asteroitlerin son kordinatlarını ekrana çizer sadece yansıtmak kalır
 
         //çizilen her şeyi ekrana yansıt
         SDL_RenderPresent(renderer);
 
-        SDL_Delay(10); // oyun döngüsünün çok hızlı çalışmasını engellemek için kısa bir gecikme ekleyebiliriz yaklaşık 100 fps yapar bu şekilde
     }
 
     //açtığın şeyeleri kapat
