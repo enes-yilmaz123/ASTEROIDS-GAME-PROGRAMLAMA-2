@@ -5,19 +5,18 @@
 // ekrn ve gemi boyutları
 #define EKRAN_GENISLIK 1000
 #define EKRAN_YUKSEKLIK 800
-#define GEMI_GENISLIK 15
-#define GEMI_YUKSEKLIK 40
+#define GEMI_GENISLIK 50
+#define GEMI_YUKSEKLIK 50
 #define GEMI_HIZ 3
 
 // gemi structı
 struct Gemi {
     float x;
     float y;
-    float hizX;
-    float hizY;
+    float hiz_x; // anlık hızı
+    float hiz_y;   
+    float aci; // açısını 0 ile 360 arasında bir değer olarak atıyoruz
     SDL_Rect sekil;
-    float yonX; //mermi ateşleme yönü için değişkenler
-    float yonY;
 };
 
 void gemi_baslangic(struct Gemi *gemiPtr);

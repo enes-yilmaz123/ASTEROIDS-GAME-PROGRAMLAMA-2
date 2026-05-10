@@ -11,8 +11,8 @@
 typedef struct{
     float x;
     float y;
-    float hizX;
-    float hizY;
+    float hiz_x;
+    float hiz_y;
     int kontrol; // merminin erkanda olup olmadığını kontrol etmek için bir değişken
     SDL_Rect sekil;
 } Mermi;

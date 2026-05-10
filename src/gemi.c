@@ -1,70 +1,63 @@
 #include "gemi.h"
+#include <math.h>
+#include <stdio.h>
+extern SDL_Texture *gemi_Dokusu;
 
-void gemi_baslangic(struct Gemi *gemiPtr) {
+void gemi_baslangic(struct Gemi *gemiPtr)
+{
     gemiPtr->x = (EKRAN_GENISLIK - GEMI_GENISLIK)/2;
     gemiPtr->y = (EKRAN_YUKSEKLIK - GEMI_YUKSEKLIK)/2;
-    gemiPtr->hizX = 0;
-    gemiPtr->hizY = 0;
-    gemiPtr->yonX = 0;
-    gemiPtr->yonY = -1; // başlangıçta yukarı bakacak şekilde yön verilir
     gemiPtr->sekil.w = GEMI_GENISLIK;
     gemiPtr->sekil.h = GEMI_YUKSEKLIK;
+    gemiPtr->hiz_x= 0;
+    gemiPtr->hiz_y= 0;
+    gemiPtr->aci= 270;
 }
 void gemi_kontrol(struct Gemi *gemiPtr,const Uint8 *tuslar)
 {
-    // tuşu bıraktığnda durması için hizını sıfırlıyoruz
-    gemiPtr->hizX = 0;
-    gemiPtr->hizY = 0;
-
-    float YONX = 0;  // yön değişimi için geçici değişkenler
-    float YONY = 0;
-
-    //  -------------- GEMİNİN HAREKETİ İŞLEMLERİ ---------------------------
-
-    if (tuslar[SDL_SCANCODE_W])     // w tuşuna basılırsa 1 döndürür ve gemi yukarı hareket eder
+    float radyan;
+    if (tuslar[SDL_SCANCODE_A])     // a tuşuna basılırsa geminin açısını azaltır
     {
-        gemiPtr->hizY -= GEMI_HIZ;
-        YONY -= 1;
+        gemiPtr->aci -= GEMI_HIZ;
     }
-    if (tuslar[SDL_SCANCODE_S])     // s tuşuna basılırsa 1 döndürür ve gemi aşağı hareket eder
-    {
-        gemiPtr->hizY += GEMI_HIZ;
-        YONY += 1;
-    }
-    if (tuslar[SDL_SCANCODE_A])     // a tuşuna basılırsa 1 döndürür ve gemi sola hareket eder
-    {
-        gemiPtr->hizX -= GEMI_HIZ;
-        YONX -= 1;
-    }
-    if (tuslar[SDL_SCANCODE_D])     // d tuşuna basılırsa 1 döndürür ve gemi sağa hareket eder
-    {
-        gemiPtr->hizX += GEMI_HIZ;
-        YONX += 1;
-    }
-    //  -------------- GEMİNİN YÖNÜNÜ DEĞİŞTİRME İŞLEMLERİ ---------------------------
 
-    if (YONX != 0 || YONY != 0) // herhangi bir yön tuşuna basıldıysa
+    if (tuslar[SDL_SCANCODE_D])     // d tuşuna basılırsa geminin açısını azaltır
     {
-        gemiPtr->yonX = YONX;
-        gemiPtr->yonY = YONY;
-
-        if (YONX != 0 && YONY == 0) // sadece sağ sol hareket varsa gemi yatay olur
-        {
-            gemiPtr->sekil.w = GEMI_YUKSEKLIK;
-            gemiPtr->sekil.h = GEMI_GENISLIK;
-        }
-
-        else if (YONY != 0 && YONX == 0) // sadece yukarı aşağı hareket varsa gemi dikey olur
-        {
-            gemiPtr->sekil.w = GEMI_GENISLIK;
-            gemiPtr->sekil.h = GEMI_YUKSEKLIK;
-        }
+        gemiPtr->aci += GEMI_HIZ;
     }
+
+    if(gemiPtr->aci<0)      // geminin açısını 0 360 arasında tutmak için 
+    gemiPtr->aci += 360;
+
+    if(gemiPtr->aci>=360)
+    gemiPtr->aci -= 360;
+
+    if (tuslar[SDL_SCANCODE_W])
+    {
+        radyan = gemiPtr->aci*(M_PI/180);
+        // aciyi radyana çeviriyoruz çünkü trogometrik fonksiyonlar kullanıcaz
+        gemiPtr->hiz_x += cos(radyan) * 0.2; 
+        gemiPtr->hiz_y += sin(radyan) * 0.2;
+    }
+    if (tuslar[SDL_SCANCODE_S])
+    {
+        radyan = gemiPtr->aci*(M_PI/180);
+        // aciyi radyana çeviriyoruz çünkü trogometrik fonksiyonlar kullanıcaz
+        gemiPtr->hiz_x -= cos(radyan) * 0.2; 
+        gemiPtr->hiz_y -= sin(radyan) * 0.2;
+    }
+
+
+
 }
-void gemi_hareket_et(struct Gemi *gemiPtr) {
-    // ilk  olarak geminin konumunu hizina göre güncelleriz
-    gemiPtr->x += gemiPtr->hizX;
-    gemiPtr->y += gemiPtr->hizY;
+void gemi_hareket_et(struct Gemi *gemiPtr)
+{
+    // ilk  olarak geminin konumunu ivmesine göre güncelleriz
+    gemiPtr->x += gemiPtr->hiz_x;
+    gemiPtr->y += gemiPtr->hiz_y;
+
+    gemiPtr->hiz_x *= 0.97;  // gemiyi ivmelendirdikten sonra geminin sonsuza kadar gitmemesi için sürtünme kuvveti
+    gemiPtr->hiz_y *= 0.97;
 
     // sonrasında ekrandan çıkıp çıkmadığını kontrol ederiz
     if (gemiPtr->x > EKRAN_GENISLIK) 
@@ -75,7 +68,6 @@ void gemi_hareket_et(struct Gemi *gemiPtr) {
     {
         gemiPtr->x = EKRAN_GENISLIK;
     }
-
     if (gemiPtr->y > EKRAN_YUKSEKLIK) 
     {
         gemiPtr->y = -GEMI_YUKSEKLIK;
@@ -91,9 +83,19 @@ void gemi_hareket_et(struct Gemi *gemiPtr) {
 // geminin kordinatları hazır geriye ekrana çizme kaldı
 void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr) 
 {
-    //beyaz renk ayarlandı
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    //ekrana gemi çizildi
-    SDL_RenderFillRect(renderer, &gemiPtr->sekil);
-    //ekranı yenileme işlemi main.c de yapılacak biz sadece geminin çizimini yazıyoru burada
+    //burada bir tane temp bir rect oluşturuyoruz bir sorun olursa elimizdeki gemi bozulmasın diye 
+    SDL_Rect hedefKutu = gemiPtr->sekil;
+    hedefKutu.h = 80;
+    hedefKutu.w = 40;
+
+
+    //bu fonksiyon elimizdeki dokuyu bir kutu üstüne yüklüyor
+    SDL_RenderCopyEx(renderer,gemi_Dokusu,NULL,&hedefKutu,
+        gemiPtr->aci+90,NULL,SDL_FLIP_NONE);
+    //ilk parametre renderer 
+    //2. eklemek istediğimiz resim 
+    //3. resmin hepsini kopyalıyacak isek NULLyazıyoruz 
+    //4.nereye kopyalıyacağını ve boyutunu belirtmesi için bir rect giriyoruz içine
+    //5.dereceyi açıyı ayarladığımız yer bilgisayar ilk olarak otomatikmen sola bakarak çıkarıyor şekli de ona göre ayarlıyorz
+    //6.resmin çevirilip çevirilmeyeceğine karar verir aynalama yapar
 }

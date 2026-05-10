@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL_ttf.h> 
+#include <SDL2/SDL_image.h>
+
 TTF_Font *puan_font = NULL ;
 TTF_Font *game_over_font = NULL ;
 SDL_Window *window = NULL ;
@@ -15,6 +17,7 @@ SDL_Texture *yaziDokusu = NULL ;
 SDL_Surface *game_over_Yuzeyi = NULL ;
 SDL_Texture *game_over_Dokusu = NULL ;
 const Uint8 *tuslar = NULL;
+SDL_Texture *gemi_Dokusu = NULL ;
 
 void baslat();
 void puan_yazdir(int puan);
@@ -25,7 +28,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     
     baslat();
-    
+
     // oyun döngüsü kontrol değişkenleri oluşturuldu
     int puan = 0;
     int calisiyor = 1;
@@ -82,7 +85,7 @@ int main(int argc, char *argv[])
                 puan += 1;   // eğer çarpışma varsa puanı arttır
             }
             // güncelle kontrol et çiz şeklinde olmalı yoksa çok fazla lag oluyor astroid kısmında yaşadım bu problemi 
-
+        }
 
             // ***------ EKRANA ÇİZME İŞLEMLERİ  -----***
             SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);  //arka plan rengi
@@ -96,13 +99,19 @@ int main(int argc, char *argv[])
             mermileri_ciz(renderer, mermiler); // mermilerin son kordinatlarını ekrana çizer sadece yansıtmak kalır
             asteroit_ciz(renderer, asteroitler); // asteroitlerin son kordinatlarını ekrana çizer sadece yansıtmak kalır
 
+
+            
             //çizilen her şeyi ekrana yansıt
             SDL_RenderPresent(renderer);
             SDL_Delay(6);
-        }
+        
     }
     
     //açtığın şeyeleri kapat sistem tasarrufu için
+    if(gemi_Dokusu) {
+        SDL_DestroyTexture(gemi_Dokusu);
+    }
+    IMG_Quit();
     TTF_CloseFont(puan_font);
     TTF_CloseFont(game_over_font);
     TTF_Quit();
@@ -123,6 +132,11 @@ void baslat()
     if (TTF_Init() == -1) {
         printf("TTF hatasi: %s\n", TTF_GetError());
     }
+    if (IMG_Init(IMG_INIT_PNG) == -1)
+    {
+        printf("Image hatasi: %s\n", IMG_GetError());
+    }
+
     // font değeri atandı 
     puan_font = TTF_OpenFont("font.ttf", 24); // puan yazdırmak için font
     game_over_font = TTF_OpenFont("font.ttf", 60); // game over fontu için büyük bir font tanımladık 
@@ -145,8 +159,10 @@ void baslat()
     }  
     // boyama işlemi için rendererın içini dolduruyoruz
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
     tuslar = SDL_GetKeyboardState(NULL); // klavye durumunu tutacak pointer oluşturuldu
+
+    //gemi dokusu oluşturuldu png olarak kullanamıyoruz o yüzden texture olarak tanımlıyoruz
+    gemi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi.png");
     
 }
 void puan_yazdir(int puan)
@@ -194,4 +210,3 @@ void game_over()
     SDL_FreeSurface(game_over_Yuzeyi);
     SDL_DestroyTexture(game_over_Dokusu);
 }
-// sıralama şu şekilde olmalı
