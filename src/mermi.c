@@ -1,5 +1,8 @@
 #include "mermi.h"
 #include <math.h>
+#include <SDL2/SDL_mixer.h>
+
+extern Mix_Chunk *ates_efekti;
 
 void mermi_baslangic(Mermi mermiler[]) 
 {
@@ -19,6 +22,7 @@ void mermi_atesleme(Mermi mermiler[], struct Gemi *gemiPtr) {
         {
             mermiler[i].kontrol = 1;
             
+            
             // başlangıç konumunu geminin merkezine yerleştiririz
             mermiler[i].x = gemiPtr->x + GEMI_GENISLIK/2;
             mermiler[i].y = gemiPtr->y + GEMI_YUKSEKLIK/2;
@@ -32,6 +36,9 @@ void mermi_atesleme(Mermi mermiler[], struct Gemi *gemiPtr) {
             // merminin kordinatlarını SDL_Rect yapısına atarız
             mermiler[i].sekil.x = (int)mermiler[i].x;
             mermiler[i].sekil.y = (int)mermiler[i].y;
+
+            //ses efekti -1 ilk kanalı buluyor 0 ile 1 kere çalıyor döngüye sokmuyor
+            Mix_PlayChannel(-1, ates_efekti, 0);
             
             break; 
         }

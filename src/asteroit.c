@@ -5,9 +5,12 @@
 #include "gemi.h"
 #include "mermi.h"
 #include <math.h>
+#include <SDL2/SDL_mixer.h>
+extern Mix_Chunk *patlama_efekti;
 extern SDL_Texture *asteroit_Dokusu1;
 extern SDL_Texture *asteroit_Dokusu2;
 extern SDL_Texture *asteroit_Dokusu3;
+
 
 void asteroit_baslangic(Asteroit *asteroit) {
     for(int i = 0 ; i < ASTEROIT_SAYISI ;  i++)
@@ -179,6 +182,7 @@ void asteroit_ciz(SDL_Renderer *renderer, Asteroit *asteroit)
             {
                 SDL_RenderCopyEx(renderer ,asteroit_Dokusu3,NULL,&asteroit[i].sekil,asteroit[i].aci,NULL,SDL_FLIP_NONE);
             }
+
         }
     }
 }
@@ -220,14 +224,17 @@ int asteroit_carpisma_kontrol_mermi(Asteroit *asteroit, Mermi *mermi)
                         {
                             asteroit_parcala(asteroit, asteroit[i].x, asteroit[i].y, BOYUT_KUCUK);
                         }
-                        // küçükleri direkt yok ediyoruz
+                        //küçükleri direkt yok ediyoruz
 
-                        // vurulan eski asteroiti ve mermiyi yok et
+                        //vurulan eski asteroiti ve mermiyi yok et
                         asteroit[i].kontrol = 0; 
                         mermi[j].kontrol = 0; 
                         
-                        // vurduğun her asteroit için puan kazanırısn 
+                        //vurduğun her asteroit için puan kazanırısn 
                         sayac += 1; 
+                        
+                        //ses efekti eklendi -1 en uygun kanalı bulur 0 ise tek sefer çalmasını sağlar
+                        Mix_PlayChannel(-1, patlama_efekti, 0);
                         
                         break;
                     }

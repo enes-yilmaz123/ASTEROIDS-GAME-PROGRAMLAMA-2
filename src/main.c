@@ -7,6 +7,7 @@
 #include <time.h>
 #include <SDL2/SDL_ttf.h> 
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 
 // global değişkenler
 TTF_Font *puan_font = NULL ;
@@ -22,6 +23,9 @@ SDL_Texture *gemi_Dokusu = NULL ;
 SDL_Texture *asteroit_Dokusu1 = NULL ;
 SDL_Texture *asteroit_Dokusu2 = NULL ;
 SDL_Texture *asteroit_Dokusu3 = NULL ;
+Mix_Music *arkaPlanMuzigi = NULL;
+Mix_Chunk *ates_efekti = NULL;
+Mix_Chunk *patlama_efekti = NULL;
 
 void baslat();
 void puan_yazdir(int puan);
@@ -112,6 +116,8 @@ int main(int argc, char *argv[])
     }
     
     //açtığın şeyeleri kapat sistem tasarrufu için
+    Mix_FreeMusic(arkaPlanMuzigi);
+    Mix_CloseAudio();   
     if(gemi_Dokusu) {
         SDL_DestroyTexture(gemi_Dokusu);
     }
@@ -136,11 +142,12 @@ void baslat()
     if (TTF_Init() == -1) {
         printf("TTF hatasi: %s\n", TTF_GetError());
     }
+    //image kütüphanesi aktif edildi
     if (IMG_Init(IMG_INIT_PNG) == -1)
     {
         printf("Image hatasi: %s\n", IMG_GetError());
     }
-
+    
     // font değeri atandı 
     puan_font = TTF_OpenFont("font.ttf", 24); // puan yazdırmak için font
     game_over_font = TTF_OpenFont("font.ttf", 60); // game over fontu için büyük bir font tanımladık 
@@ -152,6 +159,22 @@ void baslat()
     {
         printf("Font yuklenemedi: %s\n", TTF_GetError());
     }
+
+    // arkaplan music değerleri atandı ve başlatıldı
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+    arkaPlanMuzigi = Mix_LoadMUS("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_music.mp3");
+    Mix_VolumeMusic(3); // müzik seviyesi 128 üzerinden 32 ye ayarlandı
+    Mix_PlayMusic(arkaPlanMuzigi, -1); //müzik çalmaya başlandı ve sonsuz döngüye atandı -1 değikeni sonsuz döngüye sokuldu
+
+    //sese efektleri belleğe yüklendi
+    ates_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\fire1.wav");
+    patlama_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\astroidexplosive.wav");
+
+    // ses efekti ses düzeyi ayarları 0 128 arası
+    Mix_VolumeChunk(ates_efekti, 10);  
+    Mix_VolumeChunk(patlama_efekti, 15);
+    
+
     // pencere pointerının içini dolduruyoruz
     window = SDL_CreateWindow("Asteroids - Uzay Macerasi", 
                                           SDL_WINDOWPOS_CENTERED, 
