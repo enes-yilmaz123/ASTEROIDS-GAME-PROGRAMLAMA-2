@@ -3,8 +3,8 @@
 #include <SDL2/SDL.h>
 #include "gemi.h"
 
-#define MERMI_GENISLIK 4
-#define MERMI_YUKSEKLIK 15
+#define MERMI_GENISLIK 15
+#define MERMI_YUKSEKLIK 30
 #define MERMI_HIZ 10
 #define MERMI_KAPASITE 10
 
@@ -15,6 +15,7 @@ typedef struct{
     float hiz_y;
     int kontrol; // merminin erkanda olup olmadığını kontrol etmek için bir değişken
     SDL_Rect sekil;
+    float aci;
 } Mermi;
 
 void mermi_baslangic(Mermi mermiler[]);

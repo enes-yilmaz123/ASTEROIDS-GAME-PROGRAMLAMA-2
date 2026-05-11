@@ -98,4 +98,5 @@ void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr)
     //4.nereye kopyalıyacağını ve boyutunu belirtmesi için bir rect giriyoruz içine
     //5.dereceyi açıyı ayarladığımız yer bilgisayar ilk olarak otomatikmen sola bakarak çıkarıyor şekli de ona göre ayarlıyorz
     //6.resmin çevirilip çevirilmeyeceğine karar verir aynalama yapar
+
 }

@@ -3,6 +3,7 @@
 #include <SDL2/SDL_mixer.h>
 
 extern Mix_Chunk *ates_efekti;
+extern SDL_Texture *mermi_Dokusu;
 
 void mermi_baslangic(Mermi mermiler[]) 
 {
@@ -13,6 +14,7 @@ void mermi_baslangic(Mermi mermiler[])
         mermiler[i].hiz_y = 0;
         mermiler[i].sekil.w = MERMI_GENISLIK;
         mermiler[i].sekil.h = MERMI_YUKSEKLIK;
+        mermiler[i].aci = 0;
     }
 }
 void mermi_atesleme(Mermi mermiler[], struct Gemi *gemiPtr) {
@@ -22,24 +24,22 @@ void mermi_atesleme(Mermi mermiler[], struct Gemi *gemiPtr) {
         {
             mermiler[i].kontrol = 1;
             
-            
             // başlangıç konumunu geminin merkezine yerleştiririz
-            mermiler[i].x = gemiPtr->x + GEMI_GENISLIK/2;
+            mermiler[i].x = gemiPtr->x + (GEMI_GENISLIK/2)-12;
             mermiler[i].y = gemiPtr->y + GEMI_YUKSEKLIK/2;
 
-            float radyan = gemiPtr->aci * (M_PI / 180.0f);
+            float radyan = gemiPtr->aci * (M_PI / 180);
             // geminin açısını radyana çeviriir
             
             mermiler[i].hiz_x = cos(radyan) * MERMI_HIZ;
             mermiler[i].hiz_y = sin(radyan) * MERMI_HIZ;
+
+            mermiler[i].aci = gemiPtr->aci;
             
             // merminin kordinatlarını SDL_Rect yapısına atarız
             mermiler[i].sekil.x = (int)mermiler[i].x;
             mermiler[i].sekil.y = (int)mermiler[i].y;
 
-            //ses efekti -1 ilk kanalı buluyor 0 ile 1 kere çalıyor döngüye sokmuyor
-            Mix_PlayChannel(-1, ates_efekti, 0);
-            
             break; 
         }
     }
@@ -66,12 +66,11 @@ void mermileri_guncelle(Mermi mermiler[])
 }
 void mermileri_ciz(SDL_Renderer *renderer, Mermi mermiler[])
 {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // mermi rengini ayarla
-    for (int i = 0; i < MERMI_KAPASITE; i++)
+    for(int i = 0 ; i < MERMI_KAPASITE ; i++)
     {
-        if (mermiler[i].kontrol == 1)
+        if(mermiler[i].kontrol == 1)
         {
-            SDL_RenderFillRect(renderer, &mermiler[i].sekil);
+            SDL_RenderCopyEx(renderer ,mermi_Dokusu,NULL,&mermiler[i].sekil,mermiler[i].aci,NULL,SDL_FLIP_NONE);
         }
     }
 }

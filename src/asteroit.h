@@ -38,7 +38,7 @@ void asteroit_uret(Asteroit *asteroit);
 void asteroit_guncelle(Asteroit *asteroit);
 void asteroit_ciz(SDL_Renderer *renderer, Asteroit *asteroit);
 void asteroit_parcala(Asteroit *asteroitler, float x, float y, AsteroitBoyutu boyut);
-int asteroit_carpisma_kontrol(Asteroit *asteroit, struct Gemi *gemiPtr);
+int asteroit_carpisma_kontrol(Asteroit *asteroit, struct Gemi *gemiPtr , int *canPtr);
 int asteroit_carpisma_kontrol_mermi(Asteroit *asteroit, Mermi *mermi);
 
 

@@ -7,7 +7,7 @@
 #define EKRAN_YUKSEKLIK 800
 #define GEMI_GENISLIK 50
 #define GEMI_YUKSEKLIK 50
-#define GEMI_HIZ 3
+#define GEMI_HIZ 2.5
 
 // gemi structı
 struct Gemi {
