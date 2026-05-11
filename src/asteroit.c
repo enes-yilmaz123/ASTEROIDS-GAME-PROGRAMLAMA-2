@@ -4,11 +4,16 @@
 #include <stdio.h>
 #include "gemi.h"
 #include "mermi.h"
+#include <math.h>
+extern SDL_Texture *asteroit_Dokusu1;
+extern SDL_Texture *asteroit_Dokusu2;
+extern SDL_Texture *asteroit_Dokusu3;
 
 void asteroit_baslangic(Asteroit *asteroit) {
     for(int i = 0 ; i < ASTEROIT_SAYISI ;  i++)
     {
         asteroit[i].kontrol = 0;  //asteroidler başlandıçda pasif olmalı 
+        asteroit[i].aci = 0;
     }
 }
 void asteroit_uret(Asteroit *asteroit)
@@ -18,7 +23,7 @@ void asteroit_uret(Asteroit *asteroit)
         if(asteroit[i].kontrol == 0)  //pasif bir asteroid varsa onu aktif hale getir
         {
             asteroit[i].kontrol = 1; //asteroidi aktif hale getir
-            
+
             int gercek_boyut; 
             asteroit[i].boyut = rand() % 3 + 1;
             if(asteroit[i].boyut == BOYUT_BUYUK)
@@ -44,6 +49,23 @@ void asteroit_uret(Asteroit *asteroit)
             asteroit[i].hizX = rand() % 5 - 2;
             asteroit[i].hizY = rand() % 3 + 2;
 
+            if(asteroit[i].boyut == BOYUT_KUCUK)
+            {
+                asteroit[i].donme_hizi = 0; //en küçük boylu meteor kayan yıldız şeklinde olduğu için dönmesini istemiyoruz
+
+                // gittiği yönün açısını radyan cinsinden bulup dereceye çeviriyoruz
+                float radyan = atan2(asteroit[i].hizY, asteroit[i].hizX);
+                float gercek_aci = radyan * (180/M_PI);
+
+                asteroit[i].aci = gercek_aci - 45; // resimde meteor sağ alta doğru baktığı için onu bilgisayarların başlangıç kordinatları ile eşliyoruz yani sağa bakıtıyoruz
+            }
+            else 
+            {
+                // orta ve büyük asteroitlerin dönmesini istiyorum o yüzden rastgele bir açı değeri atadım
+                asteroit[i].aci = rand() % 360; 
+                asteroit[i].donme_hizi = (rand() % 5) - 2; 
+            }
+
             break; //bir asteroid üretildikten sonra döngüden çık
         }
     }
@@ -57,7 +79,7 @@ void asteroit_parcala(Asteroit *asteroitler, float x, float y, AsteroitBoyutu bo
         { 
             asteroitler[i].kontrol = 1; // boş asteroid aktif hale getir
             asteroitler[i].boyut = boyut; // yeni parçaların boyutunu parçalanan taşın boyutuna göre ayarla
-            
+
             // pixel boyutlarını belirle
             int gercekBoy;
             if(boyut == BOYUT_ORTA)
@@ -85,6 +107,26 @@ void asteroit_parcala(Asteroit *asteroitler, float x, float y, AsteroitBoyutu bo
             {
                 asteroitler[i].hizX = 2;
             }
+            asteroitler[i].hizY = 2; // aşağıya doğru da hız veriyoruz
+
+            if (boyut == BOYUT_KUCUK) 
+            {
+                //küçük asteroitler dönmesin
+                asteroitler[i].donme_hizi = 0;
+                
+                // gittiği yönün açısını radyan cinsinden bulup dereceye çeviriyoruz
+                float radyan = atan2(asteroitler[i].hizY, asteroitler[i].hizX);
+                asteroitler[i].aci = (radyan * (180/M_PI))-45; // resmi hizzalamak için 45 derece çıkartıyoruz
+
+            } 
+            else 
+            {
+                //orta asteroitler dönsün 
+                asteroitler[i].aci = rand() % 360; 
+                asteroitler[i].donme_hizi = (rand() % 5) - 2; 
+            }
+
+
             uretilen++;
             if(uretilen == 2)
             {
@@ -102,6 +144,10 @@ void asteroit_guncelle(Asteroit *asteroit)
             asteroit[i].x += asteroit[i].hizX;  // asteroidlerin hızına göre konumlarını güncelleme
             asteroit[i].y += asteroit[i].hizY;
 
+            asteroit[i].aci += asteroit[i].donme_hizi;
+            if (asteroit[i].aci >= 360) asteroit[i].aci -= 360;
+            if (asteroit[i].aci < 0) asteroit[i].aci += 360;
+
             asteroit[i].sekil.x = asteroit[i].x;  //asteroid kordinatlarını sld_rect e atama yapıyoruz ki ekrana çizebilelim
             asteroit[i].sekil.y = asteroit[i].y;
 
@@ -115,16 +161,24 @@ void asteroit_guncelle(Asteroit *asteroit)
         }
     }
 }
-
 void asteroit_ciz(SDL_Renderer *renderer, Asteroit *asteroit)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // asteroid için renk ayarı 
-
-    for(int i = 0 ; i < ASTEROIT_SAYISI; i++)
+    for(int i = 0; i< ASTEROIT_SAYISI; i++)
     {
         if(asteroit[i].kontrol == 1) //aktif olan asteroidleri çiz
         {
-            SDL_RenderFillRect(renderer, &asteroit[i].sekil);
+            if(asteroit[i].boyut == BOYUT_BUYUK)
+            {
+                SDL_RenderCopyEx(renderer ,asteroit_Dokusu1,NULL,&asteroit[i].sekil,asteroit[i].aci,NULL,SDL_FLIP_NONE);
+            }
+            else if(asteroit[i].boyut == BOYUT_ORTA)
+            {
+                SDL_RenderCopyEx(renderer ,asteroit_Dokusu2,NULL,&asteroit[i].sekil,asteroit[i].aci,NULL,SDL_FLIP_NONE);
+            }
+            else
+            {
+                SDL_RenderCopyEx(renderer ,asteroit_Dokusu3,NULL,&asteroit[i].sekil,asteroit[i].aci,NULL,SDL_FLIP_NONE);
+            }
         }
     }
 }

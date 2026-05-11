@@ -8,6 +8,7 @@
 #include <SDL2/SDL_ttf.h> 
 #include <SDL2/SDL_image.h>
 
+// global değişkenler
 TTF_Font *puan_font = NULL ;
 TTF_Font *game_over_font = NULL ;
 SDL_Window *window = NULL ;
@@ -18,6 +19,9 @@ SDL_Surface *game_over_Yuzeyi = NULL ;
 SDL_Texture *game_over_Dokusu = NULL ;
 const Uint8 *tuslar = NULL;
 SDL_Texture *gemi_Dokusu = NULL ;
+SDL_Texture *asteroit_Dokusu1 = NULL ;
+SDL_Texture *asteroit_Dokusu2 = NULL ;
+SDL_Texture *asteroit_Dokusu3 = NULL ;
 
 void baslat();
 void puan_yazdir(int puan);
@@ -164,6 +168,10 @@ void baslat()
     //gemi dokusu oluşturuldu png olarak kullanamıyoruz o yüzden texture olarak tanımlıyoruz
     gemi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi.png");
     
+    // asteroit dokuları 
+    asteroit_Dokusu1 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit.png");
+    asteroit_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit2.png");
+    asteroit_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit3.png");
 }
 void puan_yazdir(int puan)
 {

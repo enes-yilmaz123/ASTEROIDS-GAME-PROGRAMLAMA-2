@@ -6,9 +6,9 @@
 
 #define ASTEROIT_SAYISI 40
 
-#define ASTEROIT_BUYUK_BOY 60
-#define ASTEROIT_ORTA_BOY 40
-#define ASTEROIT_KUCUK_BOY 20
+#define ASTEROIT_BUYUK_BOY 80
+#define ASTEROIT_ORTA_BOY 60
+#define ASTEROIT_KUCUK_BOY 40
 
 #define ASTEROIT_MAX_HIZ 4
 #define ASTEROIT_MIN_HIZ 1
@@ -27,6 +27,8 @@ typedef struct {
     float hizY;
     int kontrol;
     AsteroitBoyutu boyut;
+    float aci;
+    float donme_hizi;
 
 }Asteroit;
 
