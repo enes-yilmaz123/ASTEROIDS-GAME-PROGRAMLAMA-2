@@ -21,13 +21,10 @@ SDL_Texture *mermi_Dokusu = NULL ;
 SDL_Surface *yaziYuzeyi = NULL ;
 SDL_Texture *yaziDokusu = NULL ;
 SDL_Texture *gemi_Dokusu = NULL ;
-SDL_Surface *game_over_Yuzeyi = NULL ;
-SDL_Texture *game_over_Dokusu = NULL ;
 SDL_Texture *asteroit_Dokusu1 = NULL ;
 SDL_Texture *asteroit_Dokusu2 = NULL ;
 SDL_Texture *asteroit_Dokusu3 = NULL ;
-SDL_Surface *menu_yazi_Yuzeyi = NULL;
-SDL_Texture *menu_yazi_Dokusu = NULL;
+SDL_Texture *arkaPlan_Dokusu = NULL ;
 
 Mix_Music *arkaPlanMuzigi = NULL;
 Mix_Chunk *ates_efekti = NULL;
@@ -39,17 +36,33 @@ const Uint8 *tuslar = NULL;
 SDL_Color beyaz = {255,255,255,255};
 SDL_Color mavi = {0,0,255,255};
 SDL_Color kirmizi = {255,0,0,255};
-
-void baslat();
-void puan_yazdir(int puan);
-void game_over();
-void menu_ekrani_ciz();
-void ekrana_yazi_yaz(const char *metin, int x, int y, TTF_Font *secilen_font, SDL_Color renk);
+SDL_Color yesil = {0,255,0,255};
 
 typedef enum
 {
     DURUM_MENU,DURUM_OYUNDA,DURUM_GAMEOVER
 } OyunDurumu;
+typedef struct
+{
+    SDL_Rect sekil;
+    char *metin;
+}Buton;
+
+Buton basla_butonu;
+Buton cikis_butonu;
+Buton ayarlar_butonu;
+Buton tekrar_oyna_butonu;
+Buton menu_butonu;
+
+void baslat();
+void puan_yazdir(int puan);
+void game_over(int puan, int *personalBest);
+void menu_ekrani_ciz(int *personalBest);
+void ekrana_yazi_yaz(const char *metin, int x, int y, TTF_Font *secilen_font, SDL_Color renk);
+void yaziyi_ortala_ciz(char *metin, int y_kordinati, TTF_Font *font, SDL_Color renk);
+void can_bar_ciz(int can);
+void buton_yazdir(SDL_Renderer *renderer, Buton buton, TTF_Font *font);
+int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton);
 
 int main(int argc, char *argv[])
 {
@@ -58,7 +71,8 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     
     baslat();
-
+    int personalBest = 0;
+    
     //oyun ilk açıldığında menü durumunda olması için
     OyunDurumu anlik_durum = DURUM_MENU;
 
@@ -87,15 +101,65 @@ int main(int argc, char *argv[])
             {
                 calisiyor = 0;
             }
-            if (event.type == SDL_KEYDOWN) // tuşa basılma durmu gerçekleştiyse
+            if (event.type == SDL_MOUSEBUTTONDOWN)  // fare tıklama olayı için gerekli işlemler
             {
-                if(anlik_durum == DURUM_MENU) // if oyun durumu menüdeyse 
+                if(anlik_durum == DURUM_MENU) // eğer oyun menü durumundaysa
                 {
-                    if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_SPACE) // enter tuşuna veya space tuşuna basınca oyunu başlat
+                    if (event.button.button == SDL_BUTTON_LEFT)
                     {
-                        anlik_durum = DURUM_OYUNDA;
+                        int fare_x = event.button.x;
+                        int fare_y = event.button.y;
+                        // burada eğer sol tıka basılırsa fare kordinatlarını bu sayede alırız
+
+                        if (buton_tiklama_kontrol(fare_x, fare_y, basla_butonu))
+                        {
+                            anlik_durum = DURUM_OYUNDA;
+                        }
+                        else if (buton_tiklama_kontrol(fare_x, fare_y, cikis_butonu))
+                        {
+                            calisiyor = 0;
+                        }
+                        else if (buton_tiklama_kontrol(fare_x, fare_y, ayarlar_butonu))
+                        {
+                            calisiyor = 0;
+                        }
+                    
                     }
                 }
+                if(anlik_durum == DURUM_GAMEOVER) // eğer oyun game over durumundaysa
+                {
+                    if(event.button.button == SDL_BUTTON_LEFT)
+                    {
+                        int fare_x = event.button.x;
+                        int fare_y = event.button.y;
+
+                        if(buton_tiklama_kontrol(fare_x, fare_y, cikis_butonu))
+                        {
+                            calisiyor = 0;
+                        }
+                        if(buton_tiklama_kontrol(fare_x, fare_y, tekrar_oyna_butonu))
+                        {
+                            puan = 0;
+                            can = 100;
+                            gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
+                            mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
+                            asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
+                            anlik_durum = DURUM_OYUNDA;
+                        }
+                        if(buton_tiklama_kontrol(fare_x, fare_y, menu_butonu))
+                        {
+                            puan = 0;
+                            can = 100;
+                            gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
+                            mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
+                            asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
+                            anlik_durum = DURUM_MENU;
+                        }
+                    }
+                }
+            }
+            if (event.type == SDL_KEYDOWN) // tuşa basılma durmu gerçekleştiyse
+            {
                 if(anlik_durum == DURUM_OYUNDA) // if oyun durumu oyunda ise 
                 {
                     if (event.key.keysym.sym == SDLK_SPACE) // space tuşuna basılınca eteş et fonksiyonunu çalıştır ve ses gelsin 
@@ -105,21 +169,6 @@ int main(int argc, char *argv[])
                         Mix_PlayChannel(-1, ates_efekti, 0);
                     }
                 }
-                if(anlik_durum == DURUM_GAMEOVER)
-                {
-                    if (event.key.keysym.sym == SDLK_r || event.key.keysym.sym == SDLK_SPACE ) // r tuşuna basıldığında game over durumunda tekrar oyunda durumuna geçiş 
-                    {
-                        puan = 0;
-                        can = 100;
-                        gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
-                        mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
-                        asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
-                        anlik_durum = DURUM_OYUNDA;
-                        Mix_PlayChannel(-1,respawn_efekti,0);
-
-                    }
-
-                }
             }
         }
         // arka planı çizim ilemlerinden önce koyarız
@@ -128,11 +177,14 @@ int main(int argc, char *argv[])
 
         if(anlik_durum == DURUM_MENU)
         {
-            menu_ekrani_ciz();
-            ekrana_yazi_yaz("ASTEROID OYUNU" ,200,(EKRAN_YUKSEKLIK/2)-150,game_over_font,kirmizi);
+            menu_ekrani_ciz(&personalBest);
+
+
         }
         if(anlik_durum == DURUM_OYUNDA)
         {
+            SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
+
             gemi_kontrol(&uzaygemisi, tuslar); // klavyenin anlık durumunu kontrol etden ve haraketleri yöneten fonksiyon 
             gemi_hareket_et(&uzaygemisi); // bu fonksiyon bize geminin yeni konumunu güncelleyecek
             mermileri_guncelle(mermiler); // mermilerin konumunu güncellemek için fonksyonu çağırırız
@@ -163,6 +215,7 @@ int main(int argc, char *argv[])
             
             // oyun durumu oyundaysa ekrana çiz
             puan_yazdir(puan);
+            can_bar_ciz(can);
             char canMetni[5];
             sprintf(canMetni, "%d", can);
             ekrana_yazi_yaz(canMetni,(EKRAN_GENISLIK/2)+400,20,puan_font,beyaz);
@@ -172,11 +225,7 @@ int main(int argc, char *argv[])
         }
         if(anlik_durum == DURUM_GAMEOVER)
         {
-            game_over(); // ekrana game over ekler
-            ekrana_yazi_yaz("RESTAR ICIN ENTER YADA SPACE TUSUNA BASINIZ",200,(EKRAN_YUKSEKLIK/2)+50,puan_font,beyaz);
-            char skorMetni[50];
-            sprintf(skorMetni, "Skor: %d", puan);
-            ekrana_yazi_yaz(skorMetni,(EKRAN_GENISLIK/2)-30,(EKRAN_YUKSEKLIK/2)-70,puan_font,beyaz);
+            game_over(puan , &personalBest); // ekrana game over ekler
         }
 
         //çizilen her şeyi ekrana yansıt
@@ -231,7 +280,7 @@ void baslat()
     // arkaplan music değerleri atandı ve başlatıldı
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     arkaPlanMuzigi = Mix_LoadMUS("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_music.mp3");
-    Mix_VolumeMusic(2); // müzik seviyesi 128 üzerinden 32 ye ayarlandı
+    Mix_VolumeMusic(1); // müzik seviyesi 128 üzerinden 32 ye ayarlandı
     Mix_PlayMusic(arkaPlanMuzigi, -1); //müzik çalmaya başlandı ve sonsuz döngüye atandı -1 değikeni sonsuz döngüye sokuldu
     Mix_AllocateChannels(32);// bu fonksiyon ses kanalı sayısını 8 den 32 ye yükseltir üst üste ses genk geldiğinde tek birini oynatıyordu ondan ekledim 
 
@@ -241,8 +290,8 @@ void baslat()
     respawn_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\respawn.wav");
 
     // ses efekti ses düzeyi ayarları 0 128 arası
-    Mix_VolumeChunk(ates_efekti, 8);  
-    Mix_VolumeChunk(patlama_efekti, 10);
+    Mix_VolumeChunk(ates_efekti, 4);  
+    Mix_VolumeChunk(patlama_efekti, 5);
     Mix_VolumeChunk(respawn_efekti, 15);
     
 
@@ -250,7 +299,7 @@ void baslat()
     window = SDL_CreateWindow("Asteroids - Uzay Macerasi", 
                                           SDL_WINDOWPOS_CENTERED, 
                                           SDL_WINDOWPOS_CENTERED, 
-                                          EKRAN_GENISLIK, EKRAN_YUKSEKLIK, 0);
+                                          EKRAN_GENISLIK, EKRAN_YUKSEKLIK,SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (!window)
     {
         SDL_Quit();
@@ -269,6 +318,48 @@ void baslat()
 
     //mermi dokusu 
     mermi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\bullet.png");
+
+    //arkaplan dokusu 
+    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_resim6.jpg");
+    
+    int buton_genislik = 400;  // burada standart bir buton genişliği belirledik
+    int buton_yukseklik = 80;
+
+    //baslatma butonu
+    basla_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    basla_butonu.sekil.y = 600;
+    basla_butonu.sekil.w = buton_genislik;
+    basla_butonu.sekil.h = buton_yukseklik;
+    basla_butonu.metin = "BASLAT";
+
+    //ayarlar butonu 
+    ayarlar_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    ayarlar_butonu.sekil.y = 700;
+    ayarlar_butonu.sekil.w = buton_genislik;
+    ayarlar_butonu.sekil.h = buton_yukseklik;
+    ayarlar_butonu.metin = "AYARLAR";
+
+    //çıkış butonu
+    cikis_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    cikis_butonu.sekil.y = 800;
+    cikis_butonu.sekil.w = buton_genislik;
+    cikis_butonu.sekil.h = buton_yukseklik;
+    cikis_butonu.metin = "CIKIS";
+
+    //tekrar oyna butonu 
+    tekrar_oyna_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    tekrar_oyna_butonu.sekil.y = 700;
+    tekrar_oyna_butonu.sekil.w = buton_genislik;
+    tekrar_oyna_butonu.sekil.h = buton_yukseklik;
+    tekrar_oyna_butonu.metin = "TEKRAR OYNA";
+
+    //menü butonu
+    menu_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    menu_butonu.sekil.y = 600;
+    menu_butonu.sekil.w = buton_genislik;
+    menu_butonu.sekil.h = buton_yukseklik;
+    menu_butonu.metin = "MENUYE DON";
+
 }
 void puan_yazdir(int puan)
 {
@@ -293,48 +384,33 @@ void puan_yazdir(int puan)
     SDL_DestroyTexture(yaziDokusu);
     // her döngüde yeni bir kutu oluştuğu için burada bunları kapatmamız gerekiyor
 }
-void game_over()
+void game_over(int puan, int *personalBest)
 {
-    SDL_Color kirmizi = {255, 0, 0, 255}; 
-    // ekranın biraz kırmızı olması için  renk paleti tanımlıyoruz
+    yaziyi_ortala_ciz("GAME OVER", (EKRAN_YUKSEKLIK/2)-50, game_over_font, kirmizi);
 
-    game_over_Yuzeyi = TTF_RenderText_Solid(puan_font ,"GAME OVER", kirmizi); //yazıyı bir yüzeye döndürüyoruz kızmı temalı 
-    game_over_Dokusu = SDL_CreateTextureFromSurface(renderer, game_over_Yuzeyi);
-    // burada da yüzeyi dokuya çeviriyoruz ekrana basabilmek için 
-
-    SDL_Rect game_over_kutusu;
-    game_over_kutusu.w = game_over_Yuzeyi->w;
-    game_over_kutusu.h = game_over_Yuzeyi->h;
-    game_over_kutusu.x = (EKRAN_GENISLIK - game_over_kutusu.w)/2;
-    game_over_kutusu.y = (EKRAN_YUKSEKLIK - game_over_kutusu.h)/2;
-    // burada ekranın tam ortasına bir kutu koyuyoruz
-
-    SDL_RenderCopy(renderer, game_over_Dokusu, NULL, &game_over_kutusu);
-    //burada da yazı dokusunu yaptığımız kutuya yapıştırıyoruz
-
-    SDL_FreeSurface(game_over_Yuzeyi);
-    SDL_DestroyTexture(game_over_Dokusu);
+    buton_yazdir(renderer, cikis_butonu, puan_font);
+    buton_yazdir(renderer, tekrar_oyna_butonu, puan_font);
+    buton_yazdir(renderer, menu_butonu, puan_font);
+    
+    char skorMetni[50];
+    sprintf(skorMetni, "Skor: %d", puan);
+    yaziyi_ortala_ciz(skorMetni,(EKRAN_YUKSEKLIK/2)-100,puan_font,beyaz);
+    if(puan > *personalBest)
+    {
+        *personalBest = puan;
+    }
 }
-void menu_ekrani_ciz()
+void menu_ekrani_ciz(int *personalBest)
 {
-    SDL_Color mavi = {0,0,255,255};  // ekrana yazılacak şeyin rengini belirlemek için bir color değişkeni atadım
+    yaziyi_ortala_ciz("ASTEROID OYUNU",(EKRAN_YUKSEKLIK/2)-150,game_over_font,kirmizi);
 
-    // burada da yüzeyi dokuya çeviriyoruz ekrana basabilmek için  
-    menu_yazi_Yuzeyi = TTF_RenderText_Solid(puan_font ,"OYUNU BASLATMAK ICIN ENTER VEYA SPACE TUSUNA BASINIZ", mavi); //yazıyı bir yüzeye döndürüyoruz kızmı temalı 
-    menu_yazi_Dokusu = SDL_CreateTextureFromSurface(renderer, menu_yazi_Yuzeyi);
+    char bestSkorMetni[50];
+    sprintf(bestSkorMetni, "EN IYI SKOR = %d", *personalBest); 
+    yaziyi_ortala_ciz(bestSkorMetni,100,puan_font,beyaz);
 
-    SDL_Rect menu_ekrani_kutusu;
-    menu_ekrani_kutusu.w = menu_yazi_Yuzeyi->w;
-    menu_ekrani_kutusu.h = menu_yazi_Yuzeyi->h;
-    menu_ekrani_kutusu.x = (EKRAN_GENISLIK - menu_ekrani_kutusu.w)/2;
-    menu_ekrani_kutusu.y = (EKRAN_YUKSEKLIK - menu_ekrani_kutusu.h)/2;
-    // burada ekranın tam ortasına bir kutu koyuyoruz
-
-    SDL_RenderCopy(renderer, menu_yazi_Dokusu, NULL, &menu_ekrani_kutusu);
-    //burada da yazı dokusunu yaptığımız kutuya yapıştırıyoruz
-
-    SDL_FreeSurface(menu_yazi_Yuzeyi);
-    SDL_DestroyTexture(menu_yazi_Dokusu);
+    buton_yazdir(renderer, basla_butonu, puan_font);
+    buton_yazdir(renderer, ayarlar_butonu, puan_font);
+    buton_yazdir(renderer, cikis_butonu, puan_font);
 
 
 }
@@ -354,4 +430,63 @@ void ekrana_yazi_yaz(const char *metin, int x, int y, TTF_Font *secilen_font, SD
     SDL_FreeSurface(yuzey);
     SDL_DestroyTexture(doku);
 }
+void yaziyi_ortala_ciz(char *metin, int y_kordinati, TTF_Font *font, SDL_Color renk) 
+{
+    int genislik, yukseklik;
+    //yazının genişlini ve yüksekliğini hesapla
+    TTF_SizeUTF8(font, metin, &genislik, &yukseklik);
+    
+    // ekrana yazının ortalanmış şekilde çizilebilmesi için x kordinatını hesapla
+    int x_kordinati = (EKRAN_GENISLIK / 2) - (genislik / 2);
+    
+    //bunları ekrana yazdır
+    ekrana_yazi_yaz(metin, x_kordinati, y_kordinati, font, renk);
+}
+void can_bar_ciz(int can)
+{
+    SDL_Rect canBar;
+    SDL_Rect canBarArkaPlan;
+    canBar.x = EKRAN_GENISLIK-500;
+    canBar.y = 20;
+    canBar.w = can*4;
+    canBar.h = 35;
+    canBarArkaPlan.x = EKRAN_GENISLIK-500;
+    canBarArkaPlan.y = 20;
+    canBarArkaPlan.w = 400;
+    canBarArkaPlan.h = 35;
+    // can barının boyutunu can değerine göre ayarlıyoruz
+    SDL_SetRenderDrawColor(renderer, 10, 30, 100, 0);
+    SDL_RenderFillRect(renderer, &canBarArkaPlan); // can barının arka planını ekrana çiziyoruz
+    SDL_SetRenderDrawColor(renderer, 17, 138, 21, 255); // can barının rengini yeşil yapıyoruz
+    SDL_RenderFillRect(renderer, &canBar); // can barını ekrana çiziyoruz
+}
+void buton_yazdir(SDL_Renderer *renderer,Buton buton, TTF_Font *font)
+{
+    int fare_x;
+    int fare_y;
 
+
+    SDL_SetRenderDrawColor(renderer, 60, 60, 100, 255); //burada rengi seçiyoruz
+    SDL_RenderFillRect(renderer, &buton.sekil); //burada da o renk ile çiziyoruz
+
+    int yazi_genislik;
+    int yazi_yukseklik;
+    TTF_SizeUTF8(font, buton.metin, &yazi_genislik, &yazi_yukseklik);  // burada yazının genişliğini bulmak için değişkenleri adres olarak yolluyoruz
+
+    int yazi_x = buton.sekil.x + (buton.sekil.w / 2) - (yazi_genislik / 2);   // buradada bulduğumuz uzunlukları kutuunun ortasını bulmak için kullanıyoruz
+    int yazi_y = buton.sekil.y + (buton.sekil.h / 2) - (yazi_yukseklik / 2);
+
+    ekrana_yazi_yaz(buton.metin, yazi_x, yazi_y, font, beyaz); // yazıyı kutunun ortasına yazdırıyoruz
+}
+int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton)
+{
+    if(fare_x >= buton.sekil.x && fare_x <= buton.sekil.x + buton.sekil.w && fare_y >= buton.sekil.y && fare_y <= buton.sekil.y + buton.sekil.h)
+    {
+        return 1; // mouse kutunun içindeyse 1 döndür
+    }
+    return 0; // değilse 0 döndür
+}
+//arkaplan
+//fullscreen
+//yazdırma fonksiyonları
+//can barı

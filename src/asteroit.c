@@ -27,7 +27,7 @@ void asteroit_uret(Asteroit *asteroit)
             asteroit[i].kontrol = 1; //asteroidi aktif hale getir
 
             int gercek_boyut; 
-            asteroit[i].boyut = rand() % 3 + 1;
+            asteroit[i].boyut = rand() % 2 + 2;
             if(asteroit[i].boyut == BOYUT_BUYUK)
             gercek_boyut = ASTEROIT_BUYUK_BOY;
 
