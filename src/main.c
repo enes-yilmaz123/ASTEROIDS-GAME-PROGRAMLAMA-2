@@ -30,6 +30,8 @@ Mix_Music *arkaPlanMuzigi = NULL;
 Mix_Chunk *ates_efekti = NULL;
 Mix_Chunk *patlama_efekti = NULL;
 Mix_Chunk *respawn_efekti = NULL;
+Mix_Chunk *click_efekti = NULL;
+Mix_Chunk *hasar_efekti = NULL;
 
 const Uint8 *tuslar = NULL;
 
@@ -40,7 +42,7 @@ SDL_Color yesil = {0,255,0,255};
 
 typedef enum
 {
-    DURUM_MENU,DURUM_OYUNDA,DURUM_GAMEOVER
+    DURUM_MENU,DURUM_OYUNDA,DURUM_GAMEOVER,DURUM_AYARLAR
 } OyunDurumu;
 typedef struct
 {
@@ -53,6 +55,9 @@ Buton cikis_butonu;
 Buton ayarlar_butonu;
 Buton tekrar_oyna_butonu;
 Buton menu_butonu;
+Buton geri_don_butonu;
+Buton ses_arttir_butonu;
+Buton ses_azalt_butonu;
 
 void baslat();
 void puan_yazdir(int puan);
@@ -63,6 +68,7 @@ void yaziyi_ortala_ciz(char *metin, int y_kordinati, TTF_Font *font, SDL_Color r
 void can_bar_ciz(int can);
 void buton_yazdir(SDL_Renderer *renderer, Buton buton, TTF_Font *font);
 int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton);
+void ayarlar_menusu_ciz();
 
 int main(int argc, char *argv[])
 {
@@ -103,42 +109,73 @@ int main(int argc, char *argv[])
             }
             if (event.type == SDL_MOUSEBUTTONDOWN)  // fare tıklama olayı için gerekli işlemler
             {
-                if(anlik_durum == DURUM_MENU) // eğer oyun menü durumundaysa
+                if (event.button.button == SDL_BUTTON_LEFT)
                 {
-                    if (event.button.button == SDL_BUTTON_LEFT)
-                    {
-                        int fare_x = event.button.x;
-                        int fare_y = event.button.y;
-                        // burada eğer sol tıka basılırsa fare kordinatlarını bu sayede alırız
+                    int fare_x = event.button.x;
+                    int fare_y = event.button.y;
 
+                    if(anlik_durum == DURUM_AYARLAR) // eğer oyun ayarlar durumundaysa
+                    {
+                        if(buton_tiklama_kontrol(fare_x, fare_y, geri_don_butonu))
+                        {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            anlik_durum = DURUM_MENU;
+                        }
+                        if(buton_tiklama_kontrol(fare_x, fare_y, ses_arttir_butonu))
+                        {
+                            int anlik_ses = Mix_VolumeMusic(-1); //şu anki ses seviyesini öğren
+                            anlik_ses += 13; // sesi %10 arttır
+                            
+                            if(anlik_ses > 128) anlik_ses = 128; // maks ses seviyesi 128 onu geçmemesi lazım
+                            
+                            //tüm seslere yeni sesi uygula
+                            Mix_VolumeMusic(anlik_ses);
+                            Mix_VolumeChunk(ates_efekti, anlik_ses);
+                            Mix_VolumeChunk(patlama_efekti, anlik_ses);
+                            Mix_VolumeChunk(respawn_efekti, anlik_ses);
+                        }
+                        if(buton_tiklama_kontrol(fare_x, fare_y, ses_azalt_butonu))
+                        {
+                            int anlik_ses = Mix_VolumeMusic(-1); //şu anki ses seviyesini öğren
+                            anlik_ses -= 13; //%10 azalt
+                            
+                            if(anlik_ses < 0) anlik_ses = 0;// 0 dan aşağı düşmesin
+                            
+                            Mix_VolumeMusic(anlik_ses);
+                            Mix_VolumeChunk(ates_efekti, anlik_ses);
+                            Mix_VolumeChunk(patlama_efekti, anlik_ses);
+                            Mix_VolumeChunk(respawn_efekti, anlik_ses);
+                        }
+                    }
+                    if(anlik_durum == DURUM_MENU) // eğer oyun menü durumundaysa
+                    { 
                         if (buton_tiklama_kontrol(fare_x, fare_y, basla_butonu))
                         {
+                            Mix_PlayChannel(-1, click_efekti, 0);
                             anlik_durum = DURUM_OYUNDA;
                         }
                         else if (buton_tiklama_kontrol(fare_x, fare_y, cikis_butonu))
                         {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            SDL_Delay(300); // çıkış efektinin duyulamsı için ufak  bir gecikme
                             calisiyor = 0;
                         }
                         else if (buton_tiklama_kontrol(fare_x, fare_y, ayarlar_butonu))
                         {
-                            calisiyor = 0;
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            anlik_durum = DURUM_AYARLAR;
                         }
-                    
                     }
-                }
-                if(anlik_durum == DURUM_GAMEOVER) // eğer oyun game over durumundaysa
-                {
-                    if(event.button.button == SDL_BUTTON_LEFT)
+                    if(anlik_durum == DURUM_GAMEOVER) // eğer oyun game over durumundaysa
                     {
-                        int fare_x = event.button.x;
-                        int fare_y = event.button.y;
-
                         if(buton_tiklama_kontrol(fare_x, fare_y, cikis_butonu))
                         {
+                            Mix_PlayChannel(-1, click_efekti, 0);
                             calisiyor = 0;
                         }
                         if(buton_tiklama_kontrol(fare_x, fare_y, tekrar_oyna_butonu))
                         {
+                            Mix_PlayChannel(-1, click_efekti, 0);
                             puan = 0;
                             can = 100;
                             gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
@@ -148,6 +185,7 @@ int main(int argc, char *argv[])
                         }
                         if(buton_tiklama_kontrol(fare_x, fare_y, menu_butonu))
                         {
+                            Mix_PlayChannel(-1, click_efekti, 0);
                             puan = 0;
                             can = 100;
                             gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
@@ -177,9 +215,17 @@ int main(int argc, char *argv[])
 
         if(anlik_durum == DURUM_MENU)
         {
+            SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
+            SDL_RenderPresent(renderer);
             menu_ekrani_ciz(&personalBest);
 
 
+        }
+        if(anlik_durum == DURUM_AYARLAR)
+        {
+            SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
+            SDL_RenderPresent(renderer);
+            ayarlar_menusu_ciz();
         }
         if(anlik_durum == DURUM_OYUNDA)
         {
@@ -198,6 +244,7 @@ int main(int argc, char *argv[])
             int hasar = asteroit_carpisma_kontrol(asteroitler, &uzaygemisi , &can);
             if(hasar != 0)
             {
+                Mix_PlayChannel(-1, hasar_efekti, 0);
                 char hasarMetni[5];
                 sprintf(hasarMetni, "%d", hasar);
                 ekrana_yazi_yaz(hasarMetni,uzaygemisi.sekil.x,uzaygemisi.sekil.y,puan_font,kirmizi);
@@ -225,22 +272,41 @@ int main(int argc, char *argv[])
         }
         if(anlik_durum == DURUM_GAMEOVER)
         {
+            SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
+            SDL_RenderPresent(renderer);
             game_over(puan , &personalBest); // ekrana game over ekler
         }
 
         //çizilen her şeyi ekrana yansıt
         SDL_RenderPresent(renderer);
-        SDL_Delay(11);
+        SDL_Delay(9);
     }
     
-    //açtığın şeyeleri kapat sistem tasarrufu için
+    // ses ile alakalı  şeyleri temizleme
+    Mix_FreeChunk(ates_efekti);
+    Mix_FreeChunk(patlama_efekti);
+    Mix_FreeChunk(respawn_efekti);
+    Mix_FreeChunk(click_efekti);
+    Mix_FreeChunk(hasar_efekti);
     Mix_FreeMusic(arkaPlanMuzigi);
     Mix_CloseAudio();   
+
+    // dokuları temizleme
     SDL_DestroyTexture(gemi_Dokusu);
+    SDL_DestroyTexture(asteroit_Dokusu1);
+    SDL_DestroyTexture(asteroit_Dokusu2);
+    SDL_DestroyTexture(asteroit_Dokusu3);
+    SDL_DestroyTexture(mermi_Dokusu);
+    SDL_DestroyTexture(arkaPlan_Dokusu);
     IMG_Quit();
+
+    // fontları temizleme
     TTF_CloseFont(puan_font);
     TTF_CloseFont(game_over_font);
+    TTF_CloseFont(menu_ekrani_font); // Bunu kapatmayı da unutmuşsun, ekledim.
     TTF_Quit();
+
+    // window ve rendererı temizleme
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -285,15 +351,19 @@ void baslat()
     Mix_AllocateChannels(32);// bu fonksiyon ses kanalı sayısını 8 den 32 ye yükseltir üst üste ses genk geldiğinde tek birini oynatıyordu ondan ekledim 
 
     //sese efektleri belleğe yüklendi
-    ates_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\fire1.wav");
+    ates_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\laser_sound.ogg");
     patlama_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\astroidexplosive.wav");
     respawn_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\respawn.wav");
+    click_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\click.ogg");
+    hasar_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\damage.ogg");
 
+    int baslangic_ses = 64;
     // ses efekti ses düzeyi ayarları 0 128 arası
-    Mix_VolumeChunk(ates_efekti, 4);  
-    Mix_VolumeChunk(patlama_efekti, 5);
-    Mix_VolumeChunk(respawn_efekti, 15);
-    
+    Mix_VolumeChunk(ates_efekti, baslangic_ses);  
+    Mix_VolumeChunk(patlama_efekti, baslangic_ses);
+    Mix_VolumeChunk(respawn_efekti, baslangic_ses);
+    Mix_VolumeChunk(click_efekti, baslangic_ses);
+    Mix_VolumeChunk(hasar_efekti, baslangic_ses);
 
     // pencere pointerının içini dolduruyoruz
     window = SDL_CreateWindow("Asteroids - Uzay Macerasi", 
@@ -320,7 +390,7 @@ void baslat()
     mermi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\bullet.png");
 
     //arkaplan dokusu 
-    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_resim6.jpg");
+    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay1.jpg");
     
     int buton_genislik = 400;  // burada standart bir buton genişliği belirledik
     int buton_yukseklik = 80;
@@ -359,6 +429,28 @@ void baslat()
     menu_butonu.sekil.w = buton_genislik;
     menu_butonu.sekil.h = buton_yukseklik;
     menu_butonu.metin = "MENUYE DON";
+
+    //geri dön butonu
+    geri_don_butonu.sekil.x = EKRAN_GENISLIK - buton_genislik+50; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    geri_don_butonu.sekil.y = 100;
+    geri_don_butonu.sekil.w = buton_genislik-150;
+    geri_don_butonu.sekil.h = buton_yukseklik-40;
+    geri_don_butonu.metin = "GERI DON";
+    
+    //ses arttir butonu
+    ses_arttir_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik - 75; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    ses_arttir_butonu.sekil.y = 400;
+    ses_arttir_butonu.sekil.w = buton_genislik ;
+    ses_arttir_butonu.sekil.h = buton_yukseklik - 25;
+    ses_arttir_butonu.metin = "SES ARTTIR";
+
+    //ses azalt butonu
+    ses_azalt_butonu.sekil.x = EKRAN_GENISLIK/2 + 100; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    ses_azalt_butonu.sekil.y = 400;
+    ses_azalt_butonu.sekil.w = buton_genislik - 100;
+    ses_azalt_butonu.sekil.h = buton_yukseklik - 25;
+    ses_azalt_butonu.metin = "SES AZALT";
+
 
 }
 void puan_yazdir(int puan)
@@ -460,13 +552,28 @@ void can_bar_ciz(int can)
     SDL_SetRenderDrawColor(renderer, 17, 138, 21, 255); // can barının rengini yeşil yapıyoruz
     SDL_RenderFillRect(renderer, &canBar); // can barını ekrana çiziyoruz
 }
+int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton)
+{
+    if(fare_x >= buton.sekil.x && fare_x <= buton.sekil.x + buton.sekil.w && fare_y >= buton.sekil.y && fare_y <= buton.sekil.y + buton.sekil.h)
+    {
+        return 1; // mouse kutunun içindeyse 1 döndür
+    }
+    return 0; // değilse 0 döndür
+}
 void buton_yazdir(SDL_Renderer *renderer,Buton buton, TTF_Font *font)
 {
     int fare_x;
     int fare_y;
+    SDL_GetMouseState(&fare_x, &fare_y); // fare kordinatlarını alıyoruz ve değişkenlere atıyoruz
 
-
-    SDL_SetRenderDrawColor(renderer, 60, 60, 100, 255); //burada rengi seçiyoruz
+    if(buton_tiklama_kontrol(fare_x, fare_y, buton)) // eğer fare butonun içindeyse butonun rengini değiştir
+    {
+        SDL_SetRenderDrawColor(renderer, 150, 150, 200, 255); 
+    }
+    else
+    {
+        SDL_SetRenderDrawColor(renderer, 100, 100, 150, 0);
+    }
     SDL_RenderFillRect(renderer, &buton.sekil); //burada da o renk ile çiziyoruz
 
     int yazi_genislik;
@@ -478,15 +585,20 @@ void buton_yazdir(SDL_Renderer *renderer,Buton buton, TTF_Font *font)
 
     ekrana_yazi_yaz(buton.metin, yazi_x, yazi_y, font, beyaz); // yazıyı kutunun ortasına yazdırıyoruz
 }
-int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton)
+void ayarlar_menusu_ciz()
 {
-    if(fare_x >= buton.sekil.x && fare_x <= buton.sekil.x + buton.sekil.w && fare_y >= buton.sekil.y && fare_y <= buton.sekil.y + buton.sekil.h)
-    {
-        return 1; // mouse kutunun içindeyse 1 döndür
-    }
-    return 0; // değilse 0 döndür
+    yaziyi_ortala_ciz("AYARLAR",130,game_over_font,kirmizi);
+    
+    int anlik_ses = Mix_VolumeMusic(-1); // güncel ses seviyesini alır
+    int yuzdelik_ses = (anlik_ses * 100) / 128;  // bu değeri 0 100 arasına dönüştürür
+    
+    char sesMetni[50];
+    sprintf(sesMetni, "Ses Seviyesi: %d", yuzdelik_ses);
+    ekrana_yazi_yaz(sesMetni, (EKRAN_GENISLIK/2)-100, 300, puan_font, beyaz);
+    
+    buton_yazdir(renderer, geri_don_butonu, puan_font);
+    buton_yazdir(renderer, ses_arttir_butonu, puan_font);
+    buton_yazdir(renderer, ses_azalt_butonu, puan_font);
 }
-//arkaplan
-//fullscreen
-//yazdırma fonksiyonları
-//can barı
+//ayar menüsü eklendi 
+
