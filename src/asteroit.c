@@ -20,55 +20,70 @@ void asteroit_baslangic(Asteroit *asteroit) {
 }
 void asteroit_uret(Asteroit *asteroit)
 {
-    for(int i = 0 ;  i < ASTEROIT_SAYISI ;  i++)
+    int buyuk_sayac = 0;
+    int orta_sayac = 0;
+    for(int i = 0; i < ASTEROIT_SAYISI; i++)
     {
-        if(asteroit[i].kontrol == 0)  //pasif bir asteroid varsa onu aktif hale getir
+        if(asteroit[i].kontrol == 1) //aktif asteroidleri say
         {
-            asteroit[i].kontrol = 1; //asteroidi aktif hale getir
-
-            int gercek_boyut; 
-            asteroit[i].boyut = rand() % 2 + 2;
             if(asteroit[i].boyut == BOYUT_BUYUK)
-            gercek_boyut = ASTEROIT_BUYUK_BOY;
-
+            buyuk_sayac++;
             else if(asteroit[i].boyut == BOYUT_ORTA)
-            gercek_boyut = ASTEROIT_ORTA_BOY;
-
-            else
-            gercek_boyut = ASTEROIT_KUCUK_BOY;
-            //burada urettigimiz rastgele değerleri bir temp değiskenine atıp sonra da o temp değişkenine pixel boyutlarını atıyoruz
-
-            asteroit[i].sekil.w = gercek_boyut;
-            asteroit[i].sekil.h = gercek_boyut;
-
-
-            asteroit[i].x = rand() % (EKRAN_GENISLIK - gercek_boyut);  //asteroid x ve y konumlarını rastgele değerler ataadık 
-            asteroit[i].y = -gercek_boyut; //asteroidlerin ekranın üstünden gelmesi için y konumunu ekanın üstüne başlatıyoruz
-
-            // -------- ASTEROİD HIZLARI ---------
-            // astroidlerin hızlarını rastgele üreterek her birinin rotalarını da farklı yapabiliriz hemde hızları da farklı olur 
-
-            asteroit[i].hizX = rand() % 5 - 2;
-            asteroit[i].hizY = rand() % 3 + 2;
-
-            if(asteroit[i].boyut == BOYUT_KUCUK)
+            orta_sayac++;
+        }
+    }
+    if(buyuk_sayac < 7 && orta_sayac < 10) // eğer ekranda yeterince büyük ve orta boyutlu asteroid varsa
+    {
+        for(int i = 0 ;  i < ASTEROIT_SAYISI ;  i++)
+        {
+            if(asteroit[i].kontrol == 0)  //pasif bir asteroid varsa onu aktif hale getir
             {
-                asteroit[i].donme_hizi = 0; //en küçük boylu meteor kayan yıldız şeklinde olduğu için dönmesini istemiyoruz
-
-                // gittiği yönün açısını radyan cinsinden bulup dereceye çeviriyoruz
-                float radyan = atan2(asteroit[i].hizY, asteroit[i].hizX);
-                float gercek_aci = radyan * (180/M_PI);
-
-                asteroit[i].aci = gercek_aci - 45; // resimde meteor sağ alta doğru baktığı için onu bilgisayarların başlangıç kordinatları ile eşliyoruz yani sağa bakıtıyoruz
+                asteroit[i].kontrol = 1; //asteroidi aktif hale getir
+            
+                int gercek_boyut; 
+                asteroit[i].boyut = rand() % 2 + 2;
+                if(asteroit[i].boyut == BOYUT_BUYUK)
+                gercek_boyut = ASTEROIT_BUYUK_BOY;
+            
+                else if(asteroit[i].boyut == BOYUT_ORTA)
+                gercek_boyut = ASTEROIT_ORTA_BOY;
+            
+                else
+                gercek_boyut = ASTEROIT_KUCUK_BOY;
+                //burada urettigimiz rastgele değerleri bir temp değiskenine atıp sonra da o temp değişkenine pixel boyutlarını atıyoruz
+            
+                asteroit[i].sekil.w = gercek_boyut;
+                asteroit[i].sekil.h = gercek_boyut;
+            
+            
+                asteroit[i].x = rand() % (EKRAN_GENISLIK - gercek_boyut);  //asteroid x ve y konumlarını rastgele değerler ataadık 
+                asteroit[i].y = -gercek_boyut; //asteroidlerin ekranın üstünden gelmesi için y konumunu ekanın üstüne başlatıyoruz
+            
+                // -------- ASTEROİD HIZLARI ---------
+                // astroidlerin hızlarını rastgele üreterek her birinin rotalarını da farklı yapabiliriz hemde hızları da farklı olur 
+            
+                asteroit[i].hizX = rand() % 5 - 2;
+                asteroit[i].hizY = rand() % 3 + 2;
+            
+                if(asteroit[i].boyut == BOYUT_KUCUK)
+                {
+                    asteroit[i].donme_hizi = 0; //en küçük boylu meteor kayan yıldız şeklinde olduğu için dönmesini istemiyoruz
+                
+                    // gittiği yönün açısını radyan cinsinden bulup dereceye çeviriyoruz
+                    float radyan = atan2(asteroit[i].hizY, asteroit[i].hizX);
+                    float gercek_aci = radyan * (180/M_PI);
+                
+                    asteroit[i].aci = gercek_aci - 45; // resimde meteor sağ alta doğru baktığı için onu bilgisayarların başlangıç kordinatları ile eşliyoruz yani sağa bakıtıyoruz
+                }
+                else 
+                {
+                    // orta ve büyük asteroitlerin dönmesini istiyorum o yüzden rastgele bir açı değeri atadım
+                    asteroit[i].aci = rand() % 360; 
+                    asteroit[i].donme_hizi = (rand() % 5) - 2; 
+                }
+            
+                break; //bir asteroid üretildikten sonra döngüden çık
             }
-            else 
-            {
-                // orta ve büyük asteroitlerin dönmesini istiyorum o yüzden rastgele bir açı değeri atadım
-                asteroit[i].aci = rand() % 360; 
-                asteroit[i].donme_hizi = (rand() % 5) - 2; 
-            }
-
-            break; //bir asteroid üretildikten sonra döngüden çık
         }
     }
 }
@@ -196,8 +211,19 @@ void asteroit_ciz(SDL_Renderer *renderer, Asteroit *asteroit)
     }
     
 }
-int asteroit_carpisma_kontrol(Asteroit *asteroit, struct Gemi *gemiPtr , int *canPtr)
+int asteroit_carpisma_kontrol(Asteroit *asteroit, struct Gemi *gemiPtr , int *canPtr , int *kalkanPtr, Uint32 *sayacPtr)
 {
+    if (*kalkanPtr == 1) 
+    {
+        if (SDL_GetTicks() - *sayacPtr > 3000)
+        {
+            *kalkanPtr = 0; // 3 saniye sonra kalkanı pasfi hale getir
+        }
+        else
+        {
+            return 0; // kalkan aktif ise direkt çık
+        }
+    }
     int kontrol = 0;
     SDL_Rect geciciGemi;
     geciciGemi.w = gemiPtr->sekil.w-10;

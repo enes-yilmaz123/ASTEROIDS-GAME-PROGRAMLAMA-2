@@ -3,6 +3,7 @@
 #include "gemi.h"
 #include "mermi.h"
 #include "asteroit.h"
+#include "supplies.h"
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL_ttf.h> 
@@ -25,6 +26,8 @@ SDL_Texture *asteroit_Dokusu1 = NULL ;
 SDL_Texture *asteroit_Dokusu2 = NULL ;
 SDL_Texture *asteroit_Dokusu3 = NULL ;
 SDL_Texture *arkaPlan_Dokusu = NULL ;
+SDL_Texture *repair_supp_Dokusu = NULL ;
+SDL_Texture *shield_supp_Dokusu = NULL ;
 
 Mix_Music *arkaPlanMuzigi = NULL;
 Mix_Chunk *ates_efekti = NULL;
@@ -32,6 +35,7 @@ Mix_Chunk *patlama_efekti = NULL;
 Mix_Chunk *respawn_efekti = NULL;
 Mix_Chunk *click_efekti = NULL;
 Mix_Chunk *hasar_efekti = NULL;
+Mix_Chunk *repair_efekti = NULL;
 
 const Uint8 *tuslar = NULL;
 
@@ -74,10 +78,13 @@ int main(int argc, char *argv[])
 {
     int puan = 0;
     int can = 100;
-    srand(time(NULL));
-    
-    baslat();
+    int menu_kontrol = 0;
     int personalBest = 0;
+    int kalkan_kontrol = 0;
+    Uint32 kalkan_sayaci = 0;
+    
+    srand(time(NULL));
+    baslat();
     
     //oyun ilk açıldığında menü durumunda olması için
     OyunDurumu anlik_durum = DURUM_MENU;
@@ -91,11 +98,13 @@ int main(int argc, char *argv[])
     struct Gemi uzaygemisi; // gemi structı oluşturuldu
     Mermi mermiler[MERMI_KAPASITE]; // mermi structı oluşturuldu
     Asteroit asteroitler[ASTEROIT_SAYISI]; // asteroit structı oluşturuldu
+    Supply supplies[SUPPLY_MAX_SAYISI]; // supply structı oluşturuldu
 
     // ********* NESNELERİ BAŞLATMA İŞLEMLERİ **********
     gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
     mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
     asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
+    supply_baslangic(supplies); // supply başlangıç değerleri atandı
 
     // oyun döngüsü 
     while (calisiyor)
@@ -119,7 +128,15 @@ int main(int argc, char *argv[])
                         if(buton_tiklama_kontrol(fare_x, fare_y, geri_don_butonu))
                         {
                             Mix_PlayChannel(-1, click_efekti, 0);
-                            anlik_durum = DURUM_MENU;
+                            if(menu_kontrol == 1)
+                            {
+                                anlik_durum = DURUM_OYUNDA;
+                                menu_kontrol = 0;
+                            }
+                            else
+                            {
+                                anlik_durum = DURUM_MENU;
+                            }
                         }
                         if(buton_tiklama_kontrol(fare_x, fare_y, ses_arttir_butonu))
                         {
@@ -131,8 +148,9 @@ int main(int argc, char *argv[])
                             //tüm seslere yeni sesi uygula
                             Mix_VolumeMusic(anlik_ses);
                             Mix_VolumeChunk(ates_efekti, anlik_ses);
-                            Mix_VolumeChunk(patlama_efekti, anlik_ses);
+                            Mix_VolumeChunk(patlama_efekti, anlik_ses-50);
                             Mix_VolumeChunk(respawn_efekti, anlik_ses);
+                            Mix_VolumeChunk(hasar_efekti, anlik_ses);
                         }
                         if(buton_tiklama_kontrol(fare_x, fare_y, ses_azalt_butonu))
                         {
@@ -143,8 +161,9 @@ int main(int argc, char *argv[])
                             
                             Mix_VolumeMusic(anlik_ses);
                             Mix_VolumeChunk(ates_efekti, anlik_ses);
-                            Mix_VolumeChunk(patlama_efekti, anlik_ses);
+                            Mix_VolumeChunk(patlama_efekti, anlik_ses-50);
                             Mix_VolumeChunk(respawn_efekti, anlik_ses);
+                            Mix_VolumeChunk(hasar_efekti, anlik_ses);
                         }
                     }
                     if(anlik_durum == DURUM_MENU) // eğer oyun menü durumundaysa
@@ -181,6 +200,7 @@ int main(int argc, char *argv[])
                             gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
                             mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
                             asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
+                            supply_baslangic(supplies); // supply başlangıç değerleri atandı
                             anlik_durum = DURUM_OYUNDA;
                         }
                         if(buton_tiklama_kontrol(fare_x, fare_y, menu_butonu))
@@ -191,6 +211,7 @@ int main(int argc, char *argv[])
                             gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
                             mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
                             asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
+                            supply_baslangic(supplies); // supply başlangıç değerleri atandı
                             anlik_durum = DURUM_MENU;
                         }
                     }
@@ -206,6 +227,12 @@ int main(int argc, char *argv[])
                         //ses efekti -1 ilk kanalı buluyor 0 ile 1 kere çalıyor döngüye sokmuyor
                         Mix_PlayChannel(-1, ates_efekti, 0);
                     }
+                    if (event.key.keysym.sym == SDLK_ESCAPE) // esc tuşuna basılınca ayarlara git
+                    {
+                        Mix_PlayChannel(-1, click_efekti, 0);
+                        menu_kontrol = 1;
+                        anlik_durum = DURUM_AYARLAR;
+                    }
                 }
             }
         }
@@ -216,7 +243,6 @@ int main(int argc, char *argv[])
         if(anlik_durum == DURUM_MENU)
         {
             SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
-            SDL_RenderPresent(renderer);
             menu_ekrani_ciz(&personalBest);
 
 
@@ -224,7 +250,6 @@ int main(int argc, char *argv[])
         if(anlik_durum == DURUM_AYARLAR)
         {
             SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
-            SDL_RenderPresent(renderer);
             ayarlar_menusu_ciz();
         }
         if(anlik_durum == DURUM_OYUNDA)
@@ -240,9 +265,14 @@ int main(int argc, char *argv[])
             {
                 asteroit_uret(asteroitler);
             }
+            if(rand() % 700 == 0  && puan > 10) // 1000 de bir şansla ve puan 10 dan fazla ise supply üret fonksiyonunu çalıştır
+            {
+                supply_uret(supplies);
+            }
+            supply_toplama_kontrol(supplies, &uzaygemisi, &can, &kalkan_kontrol, &kalkan_sayaci);
             asteroit_guncelle(asteroitler); // asteroitlerin konumunu güncellemek için fonksyonu çağırırız
-            int hasar = asteroit_carpisma_kontrol(asteroitler, &uzaygemisi , &can);
-            if(hasar != 0)
+            int hasar = asteroit_carpisma_kontrol(asteroitler, &uzaygemisi , &can, &kalkan_kontrol, &kalkan_sayaci);
+            if(hasar != 0) 
             {
                 Mix_PlayChannel(-1, hasar_efekti, 0);
                 char hasarMetni[5];
@@ -266,14 +296,14 @@ int main(int argc, char *argv[])
             char canMetni[5];
             sprintf(canMetni, "%d", can);
             ekrana_yazi_yaz(canMetni,(EKRAN_GENISLIK/2)+400,20,puan_font,beyaz);
-            gemi_ciz(renderer, &uzaygemisi); // geminin son kordinatlarını ekrana çizer sadece yansıtmak kalır
+            gemi_ciz(renderer, &uzaygemisi , kalkan_kontrol); // geminin son kordinatlarını ekrana çizer sadece yansıtmak kalır
             mermileri_ciz(renderer, mermiler); // mermilerin son kordinatlarını ekrana çizer sadece yansıtmak kalır
             asteroit_ciz(renderer, asteroitler); // asteroitlerin son kordinatlarını ekrana çizer sadece yansıtmak kalır
+            supply_ciz(renderer, supplies);
         }
         if(anlik_durum == DURUM_GAMEOVER)
         {
             SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
-            SDL_RenderPresent(renderer);
             game_over(puan , &personalBest); // ekrana game over ekler
         }
 
@@ -298,6 +328,8 @@ int main(int argc, char *argv[])
     SDL_DestroyTexture(asteroit_Dokusu3);
     SDL_DestroyTexture(mermi_Dokusu);
     SDL_DestroyTexture(arkaPlan_Dokusu);
+    SDL_DestroyTexture(repair_supp_Dokusu);
+    SDL_DestroyTexture(shield_supp_Dokusu);
     IMG_Quit();
 
     // fontları temizleme
@@ -345,7 +377,7 @@ void baslat()
 
     // arkaplan music değerleri atandı ve başlatıldı
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-    arkaPlanMuzigi = Mix_LoadMUS("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_music.mp3");
+    arkaPlanMuzigi = Mix_LoadMUS("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_music2.mp3");
     Mix_VolumeMusic(1); // müzik seviyesi 128 üzerinden 32 ye ayarlandı
     Mix_PlayMusic(arkaPlanMuzigi, -1); //müzik çalmaya başlandı ve sonsuz döngüye atandı -1 değikeni sonsuz döngüye sokuldu
     Mix_AllocateChannels(32);// bu fonksiyon ses kanalı sayısını 8 den 32 ye yükseltir üst üste ses genk geldiğinde tek birini oynatıyordu ondan ekledim 
@@ -356,14 +388,16 @@ void baslat()
     respawn_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\respawn.wav");
     click_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\click.ogg");
     hasar_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\damage.ogg");
+    repair_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\repair.ogg");
 
     int baslangic_ses = 64;
     // ses efekti ses düzeyi ayarları 0 128 arası
     Mix_VolumeChunk(ates_efekti, baslangic_ses);  
-    Mix_VolumeChunk(patlama_efekti, baslangic_ses);
+    Mix_VolumeChunk(patlama_efekti, baslangic_ses-50); // patlama efektinin sesi diğerlerine göre biraz daha düşük olsun diye 20 puan azalttım
     Mix_VolumeChunk(respawn_efekti, baslangic_ses);
     Mix_VolumeChunk(click_efekti, baslangic_ses);
     Mix_VolumeChunk(hasar_efekti, baslangic_ses);
+    Mix_VolumeChunk(repair_efekti, baslangic_ses);
 
     // pencere pointerının içini dolduruyoruz
     window = SDL_CreateWindow("Asteroids - Uzay Macerasi", 
@@ -391,6 +425,10 @@ void baslat()
 
     //arkaplan dokusu 
     arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay1.jpg");
+
+    //supplies dokuları
+    repair_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\repair_supp.png");
+    shield_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\shield.png");
     
     int buton_genislik = 400;  // burada standart bir buton genişliği belirledik
     int buton_yukseklik = 80;
@@ -600,5 +638,4 @@ void ayarlar_menusu_ciz()
     buton_yazdir(renderer, ses_arttir_butonu, puan_font);
     buton_yazdir(renderer, ses_azalt_butonu, puan_font);
 }
-//ayar menüsü eklendi 
 

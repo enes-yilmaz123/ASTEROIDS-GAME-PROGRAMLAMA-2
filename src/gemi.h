@@ -21,6 +21,6 @@ struct Gemi {
 
 void gemi_baslangic(struct Gemi *gemiPtr);
 void gemi_hareket_et(struct Gemi *gemiPtr);
-void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr);
+void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr , int kalkan_kontrol);
 void gemi_kontrol(struct Gemi *gemiPtr,const Uint8 *tuslar);
 #endif

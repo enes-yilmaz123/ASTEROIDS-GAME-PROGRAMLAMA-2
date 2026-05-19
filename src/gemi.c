@@ -81,7 +81,7 @@ void gemi_hareket_et(struct Gemi *gemiPtr)
     gemiPtr->sekil.y = (int)gemiPtr->y;
 }
 // geminin kordinatları hazır geriye ekrana çizme kaldı
-void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr) 
+void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr , int kalkan_kontrol) 
 {
     //burada bir tane temp bir rect oluşturuyoruz bir sorun olursa elimizdeki gemi bozulmasın diye 
     SDL_Rect hedefKutu = gemiPtr->sekil;
@@ -98,5 +98,23 @@ void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr)
     //4.nereye kopyalıyacağını ve boyutunu belirtmesi için bir rect giriyoruz içine
     //5.dereceyi açıyı ayarladığımız yer bilgisayar ilk olarak otomatikmen sola bakarak çıkarıyor şekli de ona göre ayarlıyorz
     //6.resmin çevirilip çevirilmeyeceğine karar verir aynalama yapar
+    
 
+    if (kalkan_kontrol == 1)
+    {
+        // kalkan sembolü için mavi renk
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        
+        // gemiden büyük bir kutu oluşturuyoruz
+        SDL_Rect kalkan_kutusu =
+        {
+            gemiPtr->sekil.x - 5,
+            gemiPtr->sekil.y - 5,
+            gemiPtr->sekil.w + 10,
+            gemiPtr->sekil.h + 10
+        };
+        
+        SDL_RenderDrawRect(renderer, &kalkan_kutusu);
+        
+    }
 }
