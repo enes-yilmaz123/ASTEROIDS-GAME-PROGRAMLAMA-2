@@ -22,10 +22,16 @@ SDL_Texture *mermi_Dokusu = NULL ;
 SDL_Surface *yaziYuzeyi = NULL ;
 SDL_Texture *yaziDokusu = NULL ;
 SDL_Texture *gemi_Dokusu = NULL ;
+SDL_Texture *gemi_Dokusu2 = NULL ;
+SDL_Texture *gemi_Dokusu3 = NULL ;
+SDL_Texture *aktif_gemi_Dokusu = NULL;
 SDL_Texture *asteroit_Dokusu1 = NULL ;
 SDL_Texture *asteroit_Dokusu2 = NULL ;
 SDL_Texture *asteroit_Dokusu3 = NULL ;
 SDL_Texture *arkaPlan_Dokusu = NULL ;
+SDL_Texture *arkaPlan_Dokusu2 = NULL ;
+SDL_Texture *arkaPlan_Dokusu3 = NULL ;
+SDL_Texture *aktif_arkaplan_Dokusu = NULL ;
 SDL_Texture *repair_supp_Dokusu = NULL ;
 SDL_Texture *shield_supp_Dokusu = NULL ;
 
@@ -46,7 +52,7 @@ SDL_Color yesil = {0,255,0,255};
 
 typedef enum
 {
-    DURUM_MENU,DURUM_OYUNDA,DURUM_GAMEOVER,DURUM_AYARLAR
+    DURUM_MENU,DURUM_OYUNDA,DURUM_GAMEOVER,DURUM_AYARLAR,DURUM_OYUN_MODLARI
 } OyunDurumu;
 typedef struct
 {
@@ -62,6 +68,11 @@ Buton menu_butonu;
 Buton geri_don_butonu;
 Buton ses_arttir_butonu;
 Buton ses_azalt_butonu;
+Buton birdk_mod_butonu;
+Buton besdk_mod_butonu;
+Buton sonsuz_mod_butonu;
+Buton gemi_degistir_butonu;
+Buton arkaplan_degistir_butonu;
 
 void baslat();
 void puan_yazdir(int puan);
@@ -73,6 +84,8 @@ void can_bar_ciz(int can);
 void buton_yazdir(SDL_Renderer *renderer, Buton buton, TTF_Font *font);
 int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton);
 void ayarlar_menusu_ciz();
+void oyun_modlari_ekrani_ciz();
+void buton_baslat();
 
 int main(int argc, char *argv[])
 {
@@ -81,10 +94,16 @@ int main(int argc, char *argv[])
     int menu_kontrol = 0;
     int personalBest = 0;
     int kalkan_kontrol = 0;
+    int secili_gemi = 1;
+    int secili_arkaplan = 1;
     Uint32 kalkan_sayaci = 0;
+    int sureli_mod_aktif = 0; //sonsu mu sonsuz mu onu kontrol eder
+    Uint32 baslangic_zamani = 0; //butona basıldığı andan başlayan zamanı tutar
+    int sure_limiti = 0; // süreli modde ne kadar süre olduğunu tutar
     
     srand(time(NULL));
     baslat();
+    buton_baslat();
     
     //oyun ilk açıldığında menü durumunda olması için
     OyunDurumu anlik_durum = DURUM_MENU;
@@ -165,13 +184,81 @@ int main(int argc, char *argv[])
                             Mix_VolumeChunk(respawn_efekti, anlik_ses);
                             Mix_VolumeChunk(hasar_efekti, anlik_ses);
                         }
+                        if(buton_tiklama_kontrol(fare_x, fare_y, gemi_degistir_butonu))
+                        {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            if(secili_gemi == 1)
+                            {
+                                secili_gemi = 2;
+                                aktif_gemi_Dokusu = gemi_Dokusu2;
+                            } 
+                            else if(secili_gemi == 2)
+                            {
+                                secili_gemi = 3;
+                                aktif_gemi_Dokusu = gemi_Dokusu3;
+                            }
+                            else if(secili_gemi == 3)
+                            {
+                                secili_gemi = 1;
+                                aktif_gemi_Dokusu = gemi_Dokusu;
+                            }
+                        }
+                        if(buton_tiklama_kontrol(fare_x, fare_y, arkaplan_degistir_butonu))
+                        {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            if(secili_arkaplan == 1)
+                            {
+                                secili_arkaplan = 2;
+                                aktif_arkaplan_Dokusu = arkaPlan_Dokusu2;
+                            } 
+                            else if(secili_arkaplan == 2)
+                            {
+                                secili_arkaplan  = 3;
+                                aktif_arkaplan_Dokusu = arkaPlan_Dokusu3;
+                            }
+                            else if(secili_arkaplan == 3)
+                            {
+                                secili_arkaplan = 1;
+                                aktif_arkaplan_Dokusu = arkaPlan_Dokusu;
+                            }
+                        }
+                    }
+                    if(anlik_durum == DURUM_OYUN_MODLARI)
+                    {
+                        if(buton_tiklama_kontrol(fare_x , fare_y , geri_don_butonu))
+                        {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            anlik_durum = DURUM_MENU;
+                        }
+                        if(buton_tiklama_kontrol(fare_x , fare_y , birdk_mod_butonu))
+                        {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            sureli_mod_aktif = 1;     
+                            sure_limiti = 60000;       // 1 dakikaya ayarlandı 
+                            baslangic_zamani = SDL_GetTicks(); // o anki zamanı kaydet
+                            anlik_durum = DURUM_OYUNDA;
+                        }
+                        if(buton_tiklama_kontrol(fare_x , fare_y , besdk_mod_butonu))
+                        {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            sureli_mod_aktif = 1;     
+                            sure_limiti = 300000;      // 5 dakikaya ayarlandı
+                            baslangic_zamani = SDL_GetTicks(); // referans zamanı alındı 
+                            anlik_durum = DURUM_OYUNDA;
+                        }
+                        if(buton_tiklama_kontrol(fare_x , fare_y , sonsuz_mod_butonu))
+                        {
+                            Mix_PlayChannel(-1, click_efekti, 0);
+                            sureli_mod_aktif = 0;      // sonsuz modda süre sınırı yok 
+                            anlik_durum = DURUM_OYUNDA;
+                        }
                     }
                     if(anlik_durum == DURUM_MENU) // eğer oyun menü durumundaysa
                     { 
                         if (buton_tiklama_kontrol(fare_x, fare_y, basla_butonu))
                         {
                             Mix_PlayChannel(-1, click_efekti, 0);
-                            anlik_durum = DURUM_OYUNDA;
+                            anlik_durum = DURUM_OYUN_MODLARI;
                         }
                         else if (buton_tiklama_kontrol(fare_x, fare_y, cikis_butonu))
                         {
@@ -242,19 +329,24 @@ int main(int argc, char *argv[])
 
         if(anlik_durum == DURUM_MENU)
         {
-            SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
+            SDL_RenderCopy(renderer, aktif_arkaplan_Dokusu, NULL, NULL); // arka planı çiz
             menu_ekrani_ciz(&personalBest);
 
 
         }
         if(anlik_durum == DURUM_AYARLAR)
         {
-            SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
+            SDL_RenderCopy(renderer, aktif_arkaplan_Dokusu, NULL, NULL); // arka planı çiz
             ayarlar_menusu_ciz();
+        }
+        if(anlik_durum == DURUM_OYUN_MODLARI)
+        {
+            SDL_RenderCopy(renderer, aktif_arkaplan_Dokusu, NULL, NULL); // arka planı çiz
+            oyun_modlari_ekrani_ciz();
         }
         if(anlik_durum == DURUM_OYUNDA)
         {
-            SDL_RenderCopy(renderer, arkaPlan_Dokusu, NULL, NULL); // arka planı çiz
+            SDL_RenderCopy(renderer, aktif_arkaplan_Dokusu, NULL, NULL); // arka planı çiz
 
             gemi_kontrol(&uzaygemisi, tuslar); // klavyenin anlık durumunu kontrol etden ve haraketleri yöneten fonksiyon 
             gemi_hareket_et(&uzaygemisi); // bu fonksiyon bize geminin yeni konumunu güncelleyecek
@@ -290,6 +382,27 @@ int main(int argc, char *argv[])
             }
             // güncelle kontrol et çiz şeklinde olmalı yoksa çok fazla lag oluyor astroid kısmında yaşadım bu problemi 
             
+
+            if(sureli_mod_aktif == 1)
+            {
+                // referans süreyi anlık süreden çıkararak geçen süreyi bul
+                Uint32 gecen_sure = SDL_GetTicks() - baslangic_zamani;
+                
+                // eğer geçen süre limiti aştıysa oyunu bitir
+                if(gecen_sure >= sure_limiti)
+                {
+                    anlik_durum = DURUM_GAMEOVER;
+                }
+                else
+                {
+                    // sğre bitmediği sürece ekrana kalan süreyi yazdır
+                    int kalan_saniye = (sure_limiti - gecen_sure) / 1000; 
+                    
+                    char sureMetni[50];
+                    sprintf(sureMetni, "Sure: %d", kalan_saniye);
+                    ekrana_yazi_yaz(sureMetni, EKRAN_GENISLIK/2 - 50, 20, puan_font, beyaz);
+                }
+            }
             // oyun durumu oyundaysa ekrana çiz
             puan_yazdir(puan);
             can_bar_ciz(can);
@@ -322,14 +435,20 @@ int main(int argc, char *argv[])
     Mix_CloseAudio();   
 
     // dokuları temizleme
-    SDL_DestroyTexture(gemi_Dokusu);
+    SDL_DestroyTexture(mermi_Dokusu);
     SDL_DestroyTexture(asteroit_Dokusu1);
     SDL_DestroyTexture(asteroit_Dokusu2);
     SDL_DestroyTexture(asteroit_Dokusu3);
-    SDL_DestroyTexture(mermi_Dokusu);
     SDL_DestroyTexture(arkaPlan_Dokusu);
+    SDL_DestroyTexture(arkaPlan_Dokusu2);
+    SDL_DestroyTexture(arkaPlan_Dokusu3);
+    SDL_DestroyTexture(aktif_arkaplan_Dokusu);
     SDL_DestroyTexture(repair_supp_Dokusu);
     SDL_DestroyTexture(shield_supp_Dokusu);
+    SDL_DestroyTexture(gemi_Dokusu);
+    SDL_DestroyTexture(gemi_Dokusu2);
+    SDL_DestroyTexture(gemi_Dokusu3);
+    SDL_DestroyTexture(aktif_gemi_Dokusu);
     IMG_Quit();
 
     // fontları temizleme
@@ -378,7 +497,7 @@ void baslat()
     // arkaplan music değerleri atandı ve başlatıldı
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     arkaPlanMuzigi = Mix_LoadMUS("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_music2.mp3");
-    Mix_VolumeMusic(1); // müzik seviyesi 128 üzerinden 32 ye ayarlandı
+    Mix_VolumeMusic(10); // müzik seviyesi 128 üzerinden 32 ye ayarlandı
     Mix_PlayMusic(arkaPlanMuzigi, -1); //müzik çalmaya başlandı ve sonsuz döngüye atandı -1 değikeni sonsuz döngüye sokuldu
     Mix_AllocateChannels(32);// bu fonksiyon ses kanalı sayısını 8 den 32 ye yükseltir üst üste ses genk geldiğinde tek birini oynatıyordu ondan ekledim 
 
@@ -414,7 +533,10 @@ void baslat()
 
     //gemi dokusu oluşturuldu png olarak kullanamıyoruz o yüzden texture olarak tanımlıyoruz
     gemi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi.png");
-    
+    gemi_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi2.png");
+    gemi_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi3.png");
+    aktif_gemi_Dokusu = gemi_Dokusu;
+
     // asteroit dokuları 
     asteroit_Dokusu1 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit.png");
     asteroit_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit2.png");
@@ -424,71 +546,14 @@ void baslat()
     mermi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\bullet.png");
 
     //arkaplan dokusu 
-    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay1.jpg");
+    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay1.png");
+    arkaPlan_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay2.png");
+    arkaPlan_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay3.jpg");
+    aktif_arkaplan_Dokusu = arkaPlan_Dokusu;
 
     //supplies dokuları
     repair_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\repair_supp.png");
     shield_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\shield.png");
-    
-    int buton_genislik = 400;  // burada standart bir buton genişliği belirledik
-    int buton_yukseklik = 80;
-
-    //baslatma butonu
-    basla_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    basla_butonu.sekil.y = 600;
-    basla_butonu.sekil.w = buton_genislik;
-    basla_butonu.sekil.h = buton_yukseklik;
-    basla_butonu.metin = "BASLAT";
-
-    //ayarlar butonu 
-    ayarlar_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    ayarlar_butonu.sekil.y = 700;
-    ayarlar_butonu.sekil.w = buton_genislik;
-    ayarlar_butonu.sekil.h = buton_yukseklik;
-    ayarlar_butonu.metin = "AYARLAR";
-
-    //çıkış butonu
-    cikis_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    cikis_butonu.sekil.y = 800;
-    cikis_butonu.sekil.w = buton_genislik;
-    cikis_butonu.sekil.h = buton_yukseklik;
-    cikis_butonu.metin = "CIKIS";
-
-    //tekrar oyna butonu 
-    tekrar_oyna_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    tekrar_oyna_butonu.sekil.y = 700;
-    tekrar_oyna_butonu.sekil.w = buton_genislik;
-    tekrar_oyna_butonu.sekil.h = buton_yukseklik;
-    tekrar_oyna_butonu.metin = "TEKRAR OYNA";
-
-    //menü butonu
-    menu_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    menu_butonu.sekil.y = 600;
-    menu_butonu.sekil.w = buton_genislik;
-    menu_butonu.sekil.h = buton_yukseklik;
-    menu_butonu.metin = "MENUYE DON";
-
-    //geri dön butonu
-    geri_don_butonu.sekil.x = EKRAN_GENISLIK - buton_genislik+50; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    geri_don_butonu.sekil.y = 100;
-    geri_don_butonu.sekil.w = buton_genislik-150;
-    geri_don_butonu.sekil.h = buton_yukseklik-40;
-    geri_don_butonu.metin = "GERI DON";
-    
-    //ses arttir butonu
-    ses_arttir_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik - 75; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    ses_arttir_butonu.sekil.y = 400;
-    ses_arttir_butonu.sekil.w = buton_genislik ;
-    ses_arttir_butonu.sekil.h = buton_yukseklik - 25;
-    ses_arttir_butonu.metin = "SES ARTTIR";
-
-    //ses azalt butonu
-    ses_azalt_butonu.sekil.x = EKRAN_GENISLIK/2 + 100; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    ses_azalt_butonu.sekil.y = 400;
-    ses_azalt_butonu.sekil.w = buton_genislik - 100;
-    ses_azalt_butonu.sekil.h = buton_yukseklik - 25;
-    ses_azalt_butonu.metin = "SES AZALT";
-
 
 }
 void puan_yazdir(int puan)
@@ -637,5 +702,121 @@ void ayarlar_menusu_ciz()
     buton_yazdir(renderer, geri_don_butonu, puan_font);
     buton_yazdir(renderer, ses_arttir_butonu, puan_font);
     buton_yazdir(renderer, ses_azalt_butonu, puan_font);
-}
+    buton_yazdir(renderer, gemi_degistir_butonu, puan_font);
+    buton_yazdir(renderer, arkaplan_degistir_butonu, puan_font);
 
+    SDL_Rect gemi_onizleme = { (EKRAN_GENISLIK/2) - 450, 550, 120, 120 }; // gemi önizleme kutusunun konumu ve boyutu
+    SDL_RenderCopy(renderer, aktif_gemi_Dokusu, NULL, &gemi_onizleme);
+
+    SDL_Rect arkaplan_onizleme = { (EKRAN_GENISLIK/2) + 300, 550, 200, 120 }; // arkaplan önizleme kutusunun konumu ve boyutu
+    SDL_RenderCopy(renderer, aktif_arkaplan_Dokusu, NULL, &arkaplan_onizleme);
+}
+void oyun_modlari_ekrani_ciz()
+{
+    yaziyi_ortala_ciz("OYUN MODLARI",130,game_over_font,mavi);
+    
+    buton_yazdir(renderer, geri_don_butonu, puan_font);
+    buton_yazdir(renderer, birdk_mod_butonu, puan_font);
+    buton_yazdir(renderer, besdk_mod_butonu, puan_font);
+    buton_yazdir(renderer, sonsuz_mod_butonu, puan_font);
+
+
+}
+void buton_baslat()
+{
+    int buton_genislik = 400;  // burada standart bir buton genişliği belirledik
+    int buton_yukseklik = 80;
+
+    //baslatma butonu
+    basla_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    basla_butonu.sekil.y = 600;
+    basla_butonu.sekil.w = buton_genislik;
+    basla_butonu.sekil.h = buton_yukseklik;
+    basla_butonu.metin = "BASLAT";
+
+    //ayarlar butonu 
+    ayarlar_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    ayarlar_butonu.sekil.y = 700;
+    ayarlar_butonu.sekil.w = buton_genislik;
+    ayarlar_butonu.sekil.h = buton_yukseklik;
+    ayarlar_butonu.metin = "AYARLAR";
+
+    //çıkış butonu
+    cikis_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    cikis_butonu.sekil.y = 800;
+    cikis_butonu.sekil.w = buton_genislik;
+    cikis_butonu.sekil.h = buton_yukseklik;
+    cikis_butonu.metin = "CIKIS";
+
+    //tekrar oyna butonu 
+    tekrar_oyna_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    tekrar_oyna_butonu.sekil.y = 700;
+    tekrar_oyna_butonu.sekil.w = buton_genislik;
+    tekrar_oyna_butonu.sekil.h = buton_yukseklik;
+    tekrar_oyna_butonu.metin = "TEKRAR OYNA";
+
+    //menü butonu
+    menu_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
+    menu_butonu.sekil.y = 600;
+    menu_butonu.sekil.w = buton_genislik;
+    menu_butonu.sekil.h = buton_yukseklik;
+    menu_butonu.metin = "MENUYE DON";
+
+    //geri dön butonu
+    geri_don_butonu.sekil.x = EKRAN_GENISLIK - buton_genislik+50;
+    geri_don_butonu.sekil.y = 100;
+    geri_don_butonu.sekil.w = buton_genislik-150;
+    geri_don_butonu.sekil.h = buton_yukseklik-40;
+    geri_don_butonu.metin = "GERI DON";
+    
+    //ses arttir butonu
+    ses_arttir_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik - 75;
+    ses_arttir_butonu.sekil.y = 400;
+    ses_arttir_butonu.sekil.w = buton_genislik ;
+    ses_arttir_butonu.sekil.h = buton_yukseklik - 25;
+    ses_arttir_butonu.metin = "SES ARTTIR";
+
+    //ses azalt butonu
+    ses_azalt_butonu.sekil.x = EKRAN_GENISLIK/2 + 100;
+    ses_azalt_butonu.sekil.y = 400;
+    ses_azalt_butonu.sekil.w = buton_genislik - 100;
+    ses_azalt_butonu.sekil.h = buton_yukseklik - 25;
+    ses_azalt_butonu.metin = "SES AZALT";
+
+    //1 dk lık mod butonu
+    birdk_mod_butonu.sekil.x = 200;
+    birdk_mod_butonu.sekil.y = 400;
+    birdk_mod_butonu.sekil.w = buton_genislik;
+    birdk_mod_butonu.sekil.h = buton_yukseklik+320;
+    birdk_mod_butonu.metin = "1 DK MOD";
+
+    //5 dk lik mod butonu
+    besdk_mod_butonu.sekil.x = EKRAN_GENISLIK/2 - 200;
+    besdk_mod_butonu.sekil.y = 400;
+    besdk_mod_butonu.sekil.w = buton_genislik;
+    besdk_mod_butonu.sekil.h = buton_yukseklik+320;;
+    besdk_mod_butonu.metin = "5 DK MOD";
+
+    //sonsuz mod butonu
+    sonsuz_mod_butonu.sekil.x = EKRAN_GENISLIK/2 + 350;
+    sonsuz_mod_butonu.sekil.y = 400;
+    sonsuz_mod_butonu.sekil.w = buton_genislik;
+    sonsuz_mod_butonu.sekil.h = buton_yukseklik+320;
+    sonsuz_mod_butonu.metin = "SONSUZ MOD";
+
+    //gemi degistir butonu
+    gemi_degistir_butonu.sekil.x = EKRAN_GENISLIK/2-600;
+    gemi_degistir_butonu.sekil.y = 500;
+    gemi_degistir_butonu.sekil.w = buton_genislik;
+    gemi_degistir_butonu.sekil.h = buton_yukseklik+320;
+    gemi_degistir_butonu.metin = "GEMI DEGISTIR";
+
+    //arkaplan degistir butonu
+    arkaplan_degistir_butonu.sekil.x = EKRAN_GENISLIK/2+200;
+    arkaplan_degistir_butonu.sekil.y = 500;
+    arkaplan_degistir_butonu.sekil.w = buton_genislik;
+    arkaplan_degistir_butonu.sekil.h = buton_yukseklik+320;
+    arkaplan_degistir_butonu.metin = "ARAPLAN DEGISTIR";
+}
+// oyun modları eklendi 
+// ayarlar menüsü düzenlendi 

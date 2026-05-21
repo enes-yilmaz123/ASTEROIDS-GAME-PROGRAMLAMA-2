@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 extern SDL_Texture *gemi_Dokusu;
+extern SDL_Texture *shield_supp_Dokusu;
+extern SDL_Texture *aktif_gemi_Dokusu;
 
 void gemi_baslangic(struct Gemi *gemiPtr)
 {
@@ -85,13 +87,12 @@ void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr , int kalkan_kontrol)
 {
     //burada bir tane temp bir rect oluşturuyoruz bir sorun olursa elimizdeki gemi bozulmasın diye 
     SDL_Rect hedefKutu = gemiPtr->sekil;
-    hedefKutu.h = 80;
-    hedefKutu.w = 40;
+    hedefKutu.h = 120;
+    hedefKutu.w = 80;
 
 
     //bu fonksiyon elimizdeki dokuyu bir kutu üstüne yüklüyor
-    SDL_RenderCopyEx(renderer,gemi_Dokusu,NULL,&hedefKutu,
-        gemiPtr->aci+90,NULL,SDL_FLIP_NONE);
+    SDL_RenderCopyEx(renderer, aktif_gemi_Dokusu, NULL, &gemiPtr->sekil, gemiPtr->aci+90, NULL, SDL_FLIP_NONE);
     //ilk parametre renderer 
     //2. eklemek istediğimiz resim 
     //3. resmin hepsini kopyalıyacak isek NULLyazıyoruz 
@@ -102,19 +103,17 @@ void gemi_ciz(SDL_Renderer *renderer, struct Gemi *gemiPtr , int kalkan_kontrol)
 
     if (kalkan_kontrol == 1)
     {
-        // kalkan sembolü için mavi renk
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        
-        // gemiden büyük bir kutu oluşturuyoruz
+        // kalkanı koymak için bir kutu oluşturuyoruz
         SDL_Rect kalkan_kutusu =
         {
-            gemiPtr->sekil.x - 5,
-            gemiPtr->sekil.y - 5,
-            gemiPtr->sekil.w + 10,
-            gemiPtr->sekil.h + 10
+            gemiPtr->sekil.x - 10,
+            gemiPtr->sekil.y - 10,
+            gemiPtr->sekil.w + 20,
+            gemiPtr->sekil.h + 20
         };
-        
-        SDL_RenderDrawRect(renderer, &kalkan_kutusu);
+        //dokuyu kuyunun üzerine yüklüyoruz ve saydamlığını azaltıyoruz
+        SDL_SetTextureAlphaMod(shield_supp_Dokusu, 180);
+        SDL_RenderCopy(renderer, shield_supp_Dokusu, NULL, &kalkan_kutusu);
         
     }
 }

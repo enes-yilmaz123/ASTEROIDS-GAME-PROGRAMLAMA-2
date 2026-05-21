@@ -5,8 +5,8 @@
 // ekrn ve gemi boyutları
 #define EKRAN_GENISLIK 1920
 #define EKRAN_YUKSEKLIK 1080
-#define GEMI_GENISLIK 50
-#define GEMI_YUKSEKLIK 50
+#define GEMI_GENISLIK 100
+#define GEMI_YUKSEKLIK 100
 #define GEMI_HIZ 2.5
 
 // gemi structı
