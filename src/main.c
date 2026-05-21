@@ -19,6 +19,7 @@ SDL_Window *window = NULL ;
 SDL_Renderer *renderer = NULL ;
 
 SDL_Texture *mermi_Dokusu = NULL ;
+SDL_Texture *bos_kutu_Dokusu = NULL ;
 SDL_Surface *yaziYuzeyi = NULL ;
 SDL_Texture *yaziDokusu = NULL ;
 SDL_Texture *gemi_Dokusu = NULL ;
@@ -34,6 +35,22 @@ SDL_Texture *arkaPlan_Dokusu3 = NULL ;
 SDL_Texture *aktif_arkaplan_Dokusu = NULL ;
 SDL_Texture *repair_supp_Dokusu = NULL ;
 SDL_Texture *shield_supp_Dokusu = NULL ;
+SDL_Texture *menu_yazisi_Dokusu = NULL ;
+SDL_Texture *basla_butonu_Dokusu = NULL ;
+SDL_Texture *ayarlar_butonu_Dokusu = NULL ;
+SDL_Texture *cikis_butonu_Dokusu = NULL ;
+SDL_Texture *tekrar_oyna_butonu_Dokusu = NULL ;
+SDL_Texture *menu_butonu_Dokusu = NULL ;
+SDL_Texture *geri_don_butonu_Dokusu = NULL ;
+SDL_Texture *ses_arttir_butonu_Dokusu = NULL ;
+SDL_Texture *ses_azalt_butonu_Dokusu = NULL ;
+SDL_Texture *gemi_degistir_butonu_Dokusu = NULL ;
+SDL_Texture *arkaplan_degistir_butonu_Dokusu = NULL ;
+SDL_Texture *birdk_mod_butonu_Dokusu = NULL;
+SDL_Texture *besdk_mod_butonu_Dokusu = NULL;
+SDL_Texture *sonsuz_mod_butonu_Dokusu = NULL;
+SDL_Texture *oyun_modlari_yazisi_Dokusu = NULL;
+SDL_Texture *ayarlar_yazisi_Dokusu = NULL;
 
 Mix_Music *arkaPlanMuzigi = NULL;
 Mix_Chunk *ates_efekti = NULL;
@@ -81,11 +98,12 @@ void menu_ekrani_ciz(int *personalBest);
 void ekrana_yazi_yaz(const char *metin, int x, int y, TTF_Font *secilen_font, SDL_Color renk);
 void yaziyi_ortala_ciz(char *metin, int y_kordinati, TTF_Font *font, SDL_Color renk);
 void can_bar_ciz(int can);
-void buton_yazdir(SDL_Renderer *renderer, Buton buton, TTF_Font *font);
+void buton_yazdir(SDL_Renderer *renderer, Buton buton, SDL_Texture *doku);
 int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton);
 void ayarlar_menusu_ciz();
 void oyun_modlari_ekrani_ciz();
 void buton_baslat();
+void cop_temizle();
 
 int main(int argc, char *argv[])
 {
@@ -425,42 +443,8 @@ int main(int argc, char *argv[])
         SDL_Delay(9);
     }
     
-    // ses ile alakalı  şeyleri temizleme
-    Mix_FreeChunk(ates_efekti);
-    Mix_FreeChunk(patlama_efekti);
-    Mix_FreeChunk(respawn_efekti);
-    Mix_FreeChunk(click_efekti);
-    Mix_FreeChunk(hasar_efekti);
-    Mix_FreeMusic(arkaPlanMuzigi);
-    Mix_CloseAudio();   
+    cop_temizle(); // oyun bittikten sonra kullanılan tüm kaynakları temizle
 
-    // dokuları temizleme
-    SDL_DestroyTexture(mermi_Dokusu);
-    SDL_DestroyTexture(asteroit_Dokusu1);
-    SDL_DestroyTexture(asteroit_Dokusu2);
-    SDL_DestroyTexture(asteroit_Dokusu3);
-    SDL_DestroyTexture(arkaPlan_Dokusu);
-    SDL_DestroyTexture(arkaPlan_Dokusu2);
-    SDL_DestroyTexture(arkaPlan_Dokusu3);
-    SDL_DestroyTexture(aktif_arkaplan_Dokusu);
-    SDL_DestroyTexture(repair_supp_Dokusu);
-    SDL_DestroyTexture(shield_supp_Dokusu);
-    SDL_DestroyTexture(gemi_Dokusu);
-    SDL_DestroyTexture(gemi_Dokusu2);
-    SDL_DestroyTexture(gemi_Dokusu3);
-    SDL_DestroyTexture(aktif_gemi_Dokusu);
-    IMG_Quit();
-
-    // fontları temizleme
-    TTF_CloseFont(puan_font);
-    TTF_CloseFont(game_over_font);
-    TTF_CloseFont(menu_ekrani_font); // Bunu kapatmayı da unutmuşsun, ekledim.
-    TTF_Quit();
-
-    // window ve rendererı temizleme
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
 
     return 0;
 }
@@ -532,28 +516,52 @@ void baslat()
     tuslar = SDL_GetKeyboardState(NULL); // klavye durumunu tutacak pointer oluşturuldu
 
     //gemi dokusu oluşturuldu png olarak kullanamıyoruz o yüzden texture olarak tanımlıyoruz
-    gemi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi.png");
-    gemi_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi2.png");
-    gemi_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzaygemisi3.png");
+    gemi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzaygemisi.png");
+    gemi_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzaygemisi2.png");
+    gemi_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzaygemisi3.png");
     aktif_gemi_Dokusu = gemi_Dokusu;
 
     // asteroit dokuları 
-    asteroit_Dokusu1 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit.png");
-    asteroit_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit2.png");
-    asteroit_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\asteroit3.png");
+    asteroit_Dokusu1 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\asteroit.png");
+    asteroit_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\asteroit2.png");
+    asteroit_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\asteroit3.png");
 
     //mermi dokusu 
-    mermi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\bullet.png");
+    mermi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\bullet.png");
 
     //arkaplan dokusu 
-    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay1.png");
-    arkaPlan_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay2.png");
-    arkaPlan_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\uzay3.jpg");
+    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzay1.png");
+    arkaPlan_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzay2.png");
+    arkaPlan_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzay3.jpg");
     aktif_arkaplan_Dokusu = arkaPlan_Dokusu;
 
     //supplies dokuları
-    repair_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\repair_supp.png");
-    shield_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\shield.png");
+    repair_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\repair_supp.png");
+    shield_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\shield.png");
+    
+    //yazi dokulari
+    menu_yazisi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\menu_yazisi.png");
+    oyun_modlari_yazisi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\oyun_modlari_yazisi.png");
+    ayarlar_yazisi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ayarlar_yazisi.png");
+    
+    //bos kutu dokusu
+    bos_kutu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\bos_kutu.png");
+
+    //buton dokuları
+    basla_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\baslat_butonu.png");
+    ayarlar_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ayarlar_butonu.png");
+    cikis_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\cikis_butonu.png");
+    tekrar_oyna_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\tekra_oyna.png");
+    menu_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\menu_butonu.png");
+    geri_don_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\geri_don.png");
+    ses_arttir_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ses_arttir.png");
+    ses_azalt_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ses_azalt.png");
+    arkaplan_degistir_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\arka_plan_degistir.png");
+    gemi_degistir_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\gemi_degistir.png");
+    birdk_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\birdk_mod.png");
+    besdk_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\besdk_mod.png");
+    sonsuz_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\sonsuz_mod.png");
+
 
 }
 void puan_yazdir(int puan)
@@ -583,9 +591,9 @@ void game_over(int puan, int *personalBest)
 {
     yaziyi_ortala_ciz("GAME OVER", (EKRAN_YUKSEKLIK/2)-50, game_over_font, kirmizi);
 
-    buton_yazdir(renderer, cikis_butonu, puan_font);
-    buton_yazdir(renderer, tekrar_oyna_butonu, puan_font);
-    buton_yazdir(renderer, menu_butonu, puan_font);
+    buton_yazdir(renderer, cikis_butonu, cikis_butonu_Dokusu);
+    buton_yazdir(renderer, tekrar_oyna_butonu, tekrar_oyna_butonu_Dokusu);
+    buton_yazdir(renderer, menu_butonu, menu_butonu_Dokusu);
     
     char skorMetni[50];
     sprintf(skorMetni, "Skor: %d", puan);
@@ -597,15 +605,18 @@ void game_over(int puan, int *personalBest)
 }
 void menu_ekrani_ciz(int *personalBest)
 {
-    yaziyi_ortala_ciz("ASTEROID OYUNU",(EKRAN_YUKSEKLIK/2)-150,game_over_font,kirmizi);
+    //yaziyi_ortala_ciz("ASTEROID OYUNU",(EKRAN_YUKSEKLIK/2)-150,game_over_font,kirmizi);
 
     char bestSkorMetni[50];
     sprintf(bestSkorMetni, "EN IYI SKOR = %d", *personalBest); 
     yaziyi_ortala_ciz(bestSkorMetni,100,puan_font,beyaz);
 
-    buton_yazdir(renderer, basla_butonu, puan_font);
-    buton_yazdir(renderer, ayarlar_butonu, puan_font);
-    buton_yazdir(renderer, cikis_butonu, puan_font);
+    SDL_Rect menuYazisiKutusu = {450, (EKRAN_YUKSEKLIK/2) - 300, 1000, 180};
+    SDL_RenderCopy(renderer, menu_yazisi_Dokusu, NULL, &menuYazisiKutusu);
+
+    buton_yazdir(renderer, basla_butonu, basla_butonu_Dokusu);
+    buton_yazdir(renderer, ayarlar_butonu, ayarlar_butonu_Dokusu);
+    buton_yazdir(renderer, cikis_butonu, cikis_butonu_Dokusu);
 
 
 }
@@ -663,34 +674,40 @@ int buton_tiklama_kontrol(int fare_x, int fare_y, Buton buton)
     }
     return 0; // değilse 0 döndür
 }
-void buton_yazdir(SDL_Renderer *renderer,Buton buton, TTF_Font *font)
+void buton_yazdir(SDL_Renderer *renderer, Buton buton, SDL_Texture *doku)
 {
     int fare_x;
     int fare_y;
-    SDL_GetMouseState(&fare_x, &fare_y); // fare kordinatlarını alıyoruz ve değişkenlere atıyoruz
+    SDL_GetMouseState(&fare_x, &fare_y); // fare kordinatlarını al
 
-    if(buton_tiklama_kontrol(fare_x, fare_y, buton)) // eğer fare butonun içindeyse butonun rengini değiştir
+    // fare ile kutunun kesişip kesişmediğini kontrol et
+    int ustunde_mi = 0;
+    if (fare_x >= buton.sekil.x && fare_x <= (buton.sekil.x + buton.sekil.w) && fare_y >= buton.sekil.y && fare_y <= (buton.sekil.y + buton.sekil.h))
     {
-        SDL_SetRenderDrawColor(renderer, 150, 150, 200, 255); 
+        ustunde_mi = 1; //fare butonun üstündeyse 1 yap
     }
-    else
+
+    SDL_Rect cizilecek_kutu = buton.sekil; // burada şekli geçci olarak büyüteceğimiz için bir kopyasını oluşturuyoruz
+
+    if(ustunde_mi)
     {
-        SDL_SetRenderDrawColor(renderer, 100, 100, 150, 0);
+        //butona buyüme efekti ekliyoruz
+        int buyume = 10;
+        cizilecek_kutu.w += buyume;
+        cizilecek_kutu.h += buyume;
+        
+        // büyüuen buton kaymasın diye x ve y kordinatlarını da güncelliyoruz
+        cizilecek_kutu.x -= buyume / 2;
+        cizilecek_kutu.y -= buyume / 2;
     }
-    SDL_RenderFillRect(renderer, &buton.sekil); //burada da o renk ile çiziyoruz
-
-    int yazi_genislik;
-    int yazi_yukseklik;
-    TTF_SizeUTF8(font, buton.metin, &yazi_genislik, &yazi_yukseklik);  // burada yazının genişliğini bulmak için değişkenleri adres olarak yolluyoruz
-
-    int yazi_x = buton.sekil.x + (buton.sekil.w / 2) - (yazi_genislik / 2);   // buradada bulduğumuz uzunlukları kutuunun ortasını bulmak için kullanıyoruz
-    int yazi_y = buton.sekil.y + (buton.sekil.h / 2) - (yazi_yukseklik / 2);
-
-    ekrana_yazi_yaz(buton.metin, yazi_x, yazi_y, font, beyaz); // yazıyı kutunun ortasına yazdırıyoruz
+    // elimizde kopyaladığımız kutuyu ekrana çiziyoruz
+    SDL_RenderCopy(renderer, doku, NULL, &cizilecek_kutu);
 }
 void ayarlar_menusu_ciz()
 {
-    yaziyi_ortala_ciz("AYARLAR",130,game_over_font,kirmizi);
+
+    SDL_Rect ayarlar = {600, 100, 700, 100};
+    SDL_RenderCopy(renderer, ayarlar_yazisi_Dokusu, NULL, &ayarlar);
     
     int anlik_ses = Mix_VolumeMusic(-1); // güncel ses seviyesini alır
     int yuzdelik_ses = (anlik_ses * 100) / 128;  // bu değeri 0 100 arasına dönüştürür
@@ -699,44 +716,53 @@ void ayarlar_menusu_ciz()
     sprintf(sesMetni, "Ses Seviyesi: %d", yuzdelik_ses);
     ekrana_yazi_yaz(sesMetni, (EKRAN_GENISLIK/2)-100, 300, puan_font, beyaz);
     
-    buton_yazdir(renderer, geri_don_butonu, puan_font);
-    buton_yazdir(renderer, ses_arttir_butonu, puan_font);
-    buton_yazdir(renderer, ses_azalt_butonu, puan_font);
-    buton_yazdir(renderer, gemi_degistir_butonu, puan_font);
-    buton_yazdir(renderer, arkaplan_degistir_butonu, puan_font);
+    buton_yazdir(renderer, geri_don_butonu, geri_don_butonu_Dokusu);
+    buton_yazdir(renderer, ses_arttir_butonu, ses_arttir_butonu_Dokusu);
+    buton_yazdir(renderer, ses_azalt_butonu, ses_azalt_butonu_Dokusu);
+    buton_yazdir(renderer, gemi_degistir_butonu, gemi_degistir_butonu_Dokusu);
+    buton_yazdir(renderer, arkaplan_degistir_butonu, arkaplan_degistir_butonu_Dokusu);
 
-    SDL_Rect gemi_onizleme = { (EKRAN_GENISLIK/2) - 450, 550, 120, 120 }; // gemi önizleme kutusunun konumu ve boyutu
+    
+    SDL_Rect gemi_onizleme_kutusu = { (EKRAN_GENISLIK/2) - 400, 520, 250, 250 }; // gemi önizleme kutusunun konumu ve boyutu
+    SDL_RenderCopy(renderer, bos_kutu_Dokusu, NULL, &gemi_onizleme_kutusu);
+
+    SDL_Rect arkaplan_onizleme_kutusu = { (EKRAN_GENISLIK/2) + 170, 520, 250, 250 }; // arkaplan önizleme kutusunun konumu ve boyutu
+    SDL_RenderCopy(renderer, bos_kutu_Dokusu, NULL, &arkaplan_onizleme_kutusu);
+
+    SDL_Rect gemi_onizleme = { (EKRAN_GENISLIK/2) - 330, 550, 120, 120 }; // gemi önizleme kutusunun konumu ve boyutu
     SDL_RenderCopy(renderer, aktif_gemi_Dokusu, NULL, &gemi_onizleme);
-
-    SDL_Rect arkaplan_onizleme = { (EKRAN_GENISLIK/2) + 300, 550, 200, 120 }; // arkaplan önizleme kutusunun konumu ve boyutu
+    
+    SDL_Rect arkaplan_onizleme = { (EKRAN_GENISLIK/2) + 200, 570, 200, 120 }; // arkaplan önizleme kutusunun konumu ve boyutu
     SDL_RenderCopy(renderer, aktif_arkaplan_Dokusu, NULL, &arkaplan_onizleme);
 }
 void oyun_modlari_ekrani_ciz()
 {
-    yaziyi_ortala_ciz("OYUN MODLARI",130,game_over_font,mavi);
     
-    buton_yazdir(renderer, geri_don_butonu, puan_font);
-    buton_yazdir(renderer, birdk_mod_butonu, puan_font);
-    buton_yazdir(renderer, besdk_mod_butonu, puan_font);
-    buton_yazdir(renderer, sonsuz_mod_butonu, puan_font);
+    buton_yazdir(renderer, geri_don_butonu, geri_don_butonu_Dokusu);
+    buton_yazdir(renderer, birdk_mod_butonu, birdk_mod_butonu_Dokusu);
+    buton_yazdir(renderer, besdk_mod_butonu, besdk_mod_butonu_Dokusu);
+    buton_yazdir(renderer, sonsuz_mod_butonu, sonsuz_mod_butonu_Dokusu);
+
+    SDL_Rect oyun_modlari_yazisi = { (EKRAN_GENISLIK/2) - 500, 100, 1000, 200 };
+    SDL_RenderCopy(renderer, oyun_modlari_yazisi_Dokusu, NULL, &oyun_modlari_yazisi);
 
 
 }
 void buton_baslat()
 {
     int buton_genislik = 400;  // burada standart bir buton genişliği belirledik
-    int buton_yukseklik = 80;
+    int buton_yukseklik = 100;
 
     //baslatma butonu
     basla_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    basla_butonu.sekil.y = 600;
+    basla_butonu.sekil.y = 500;
     basla_butonu.sekil.w = buton_genislik;
     basla_butonu.sekil.h = buton_yukseklik;
     basla_butonu.metin = "BASLAT";
 
     //ayarlar butonu 
     ayarlar_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik/2; // butonun x kordinatını ekranın ortasına gelecek şekilde ayarlıyoruz
-    ayarlar_butonu.sekil.y = 700;
+    ayarlar_butonu.sekil.y = 650;
     ayarlar_butonu.sekil.w = buton_genislik;
     ayarlar_butonu.sekil.h = buton_yukseklik;
     ayarlar_butonu.metin = "AYARLAR";
@@ -763,60 +789,114 @@ void buton_baslat()
     menu_butonu.metin = "MENUYE DON";
 
     //geri dön butonu
-    geri_don_butonu.sekil.x = EKRAN_GENISLIK - buton_genislik+50;
+    geri_don_butonu.sekil.x = EKRAN_GENISLIK - buton_genislik-50;
     geri_don_butonu.sekil.y = 100;
-    geri_don_butonu.sekil.w = buton_genislik-150;
+    geri_don_butonu.sekil.w = buton_genislik-70;
     geri_don_butonu.sekil.h = buton_yukseklik-40;
     geri_don_butonu.metin = "GERI DON";
     
     //ses arttir butonu
     ses_arttir_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik - 75;
     ses_arttir_butonu.sekil.y = 400;
-    ses_arttir_butonu.sekil.w = buton_genislik ;
-    ses_arttir_butonu.sekil.h = buton_yukseklik - 25;
+    ses_arttir_butonu.sekil.w = buton_genislik-50;
+    ses_arttir_butonu.sekil.h = buton_yukseklik-50;
     ses_arttir_butonu.metin = "SES ARTTIR";
 
     //ses azalt butonu
     ses_azalt_butonu.sekil.x = EKRAN_GENISLIK/2 + 100;
     ses_azalt_butonu.sekil.y = 400;
-    ses_azalt_butonu.sekil.w = buton_genislik - 100;
-    ses_azalt_butonu.sekil.h = buton_yukseklik - 25;
+    ses_azalt_butonu.sekil.w = buton_genislik-50;
+    ses_azalt_butonu.sekil.h = buton_yukseklik-50;
     ses_azalt_butonu.metin = "SES AZALT";
 
     //1 dk lık mod butonu
     birdk_mod_butonu.sekil.x = 200;
-    birdk_mod_butonu.sekil.y = 400;
-    birdk_mod_butonu.sekil.w = buton_genislik;
-    birdk_mod_butonu.sekil.h = buton_yukseklik+320;
+    birdk_mod_butonu.sekil.y = 500;
+    birdk_mod_butonu.sekil.w = buton_genislik-70;
+    birdk_mod_butonu.sekil.h = buton_yukseklik+270;
     birdk_mod_butonu.metin = "1 DK MOD";
 
     //5 dk lik mod butonu
     besdk_mod_butonu.sekil.x = EKRAN_GENISLIK/2 - 200;
-    besdk_mod_butonu.sekil.y = 400;
-    besdk_mod_butonu.sekil.w = buton_genislik;
-    besdk_mod_butonu.sekil.h = buton_yukseklik+320;;
+    besdk_mod_butonu.sekil.y = 500;
+    besdk_mod_butonu.sekil.w = buton_genislik-70;
+    besdk_mod_butonu.sekil.h = buton_yukseklik+270;
     besdk_mod_butonu.metin = "5 DK MOD";
 
     //sonsuz mod butonu
     sonsuz_mod_butonu.sekil.x = EKRAN_GENISLIK/2 + 350;
-    sonsuz_mod_butonu.sekil.y = 400;
-    sonsuz_mod_butonu.sekil.w = buton_genislik;
-    sonsuz_mod_butonu.sekil.h = buton_yukseklik+320;
+    sonsuz_mod_butonu.sekil.y = 500;
+    sonsuz_mod_butonu.sekil.w = buton_genislik-70;
+    sonsuz_mod_butonu.sekil.h = buton_yukseklik+270;
     sonsuz_mod_butonu.metin = "SONSUZ MOD";
 
     //gemi degistir butonu
-    gemi_degistir_butonu.sekil.x = EKRAN_GENISLIK/2-600;
-    gemi_degistir_butonu.sekil.y = 500;
+    gemi_degistir_butonu.sekil.x = EKRAN_GENISLIK/2 - buton_genislik - 75;
+    gemi_degistir_butonu.sekil.y = 800;
     gemi_degistir_butonu.sekil.w = buton_genislik;
-    gemi_degistir_butonu.sekil.h = buton_yukseklik+320;
+    gemi_degistir_butonu.sekil.h = buton_yukseklik;
     gemi_degistir_butonu.metin = "GEMI DEGISTIR";
 
     //arkaplan degistir butonu
-    arkaplan_degistir_butonu.sekil.x = EKRAN_GENISLIK/2+200;
-    arkaplan_degistir_butonu.sekil.y = 500;
+    arkaplan_degistir_butonu.sekil.x = EKRAN_GENISLIK/2 + 100;
+    arkaplan_degistir_butonu.sekil.y = 800;
     arkaplan_degistir_butonu.sekil.w = buton_genislik;
-    arkaplan_degistir_butonu.sekil.h = buton_yukseklik+320;
+    arkaplan_degistir_butonu.sekil.h = buton_yukseklik;
     arkaplan_degistir_butonu.metin = "ARAPLAN DEGISTIR";
 }
-// oyun modları eklendi 
-// ayarlar menüsü düzenlendi 
+void cop_temizle()
+{
+    // ses ile alakalı  şeyleri temizleme
+    Mix_FreeChunk(ates_efekti);
+    Mix_FreeChunk(patlama_efekti);
+    Mix_FreeChunk(respawn_efekti);
+    Mix_FreeChunk(click_efekti);
+    Mix_FreeChunk(hasar_efekti);
+    Mix_FreeMusic(arkaPlanMuzigi);
+    Mix_CloseAudio();   
+
+    // dokuları temizleme
+    SDL_DestroyTexture(menu_yazisi_Dokusu);
+    SDL_DestroyTexture(bos_kutu_Dokusu);
+    SDL_DestroyTexture(mermi_Dokusu);
+    SDL_DestroyTexture(asteroit_Dokusu1);
+    SDL_DestroyTexture(asteroit_Dokusu2);
+    SDL_DestroyTexture(asteroit_Dokusu3);
+    SDL_DestroyTexture(arkaPlan_Dokusu);
+    SDL_DestroyTexture(arkaPlan_Dokusu2);
+    SDL_DestroyTexture(arkaPlan_Dokusu3);
+    SDL_DestroyTexture(aktif_arkaplan_Dokusu);
+    SDL_DestroyTexture(repair_supp_Dokusu);
+    SDL_DestroyTexture(shield_supp_Dokusu);
+    SDL_DestroyTexture(gemi_Dokusu);
+    SDL_DestroyTexture(gemi_Dokusu2);
+    SDL_DestroyTexture(gemi_Dokusu3);
+    SDL_DestroyTexture(aktif_gemi_Dokusu);
+    SDL_DestroyTexture(basla_butonu_Dokusu);
+    SDL_DestroyTexture(ayarlar_butonu_Dokusu);
+    SDL_DestroyTexture(cikis_butonu_Dokusu);
+    SDL_DestroyTexture(tekrar_oyna_butonu_Dokusu);
+    SDL_DestroyTexture(menu_butonu_Dokusu);
+    SDL_DestroyTexture(geri_don_butonu_Dokusu);
+    SDL_DestroyTexture(ses_arttir_butonu_Dokusu);
+    SDL_DestroyTexture(ses_azalt_butonu_Dokusu);
+    SDL_DestroyTexture(gemi_degistir_butonu_Dokusu);
+    SDL_DestroyTexture(arkaplan_degistir_butonu_Dokusu);
+    SDL_DestroyTexture(birdk_mod_butonu_Dokusu);
+    SDL_DestroyTexture(besdk_mod_butonu_Dokusu);
+    SDL_DestroyTexture(sonsuz_mod_butonu_Dokusu);
+    SDL_DestroyTexture(oyun_modlari_yazisi_Dokusu);
+    SDL_DestroyTexture(ayarlar_yazisi_Dokusu);
+    IMG_Quit();
+
+    // fontları temizleme
+    TTF_CloseFont(puan_font);
+    TTF_CloseFont(game_over_font);
+    TTF_CloseFont(menu_ekrani_font); // Bunu kapatmayı da unutmuşsun, ekledim.
+    TTF_Quit();
+
+    // window ve rendererı temizleme
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
