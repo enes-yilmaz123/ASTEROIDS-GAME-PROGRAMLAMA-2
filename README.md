@@ -94,7 +94,6 @@ Oyunda aşağıdaki arayüz sistemleri bulunmaktadır:
 | **A / D**         | Gemiyi sola veya sağa döndürür             |
 | **SPACE**         | Lazer silahını ateşler                     |
 | **ESC**           | Ayarlar menüsünü açar / oyunu duraklatır   |
-| **Sol Fare Tıkı** | Menü ve buton kontrolleri                  |
 
 ---
 
@@ -116,28 +115,13 @@ Ancak dikkatli ol:
 Ekranın:
 
 * Sağından çıkarsan solundan
-* Üstünden çıkarsan altından
-
-tekrar oyuna giriş yaparsın.
+* Üstünden çıkarsan altından tekrar oyuna giriş yaparsın.
 
 Bu mekanik sayesinde sıkıştığın anlarda tehlikeden kaçabilirsin.
 
 ---
 
-## ❤️ Tamir Kiti
-
-Hasar almış geminin gövdesini onarır ve canını yeniler.
-
----
-
-## 🛡️ Enerji Kalkanı
-
-Geminin etrafında 3 saniyelik geçici bir enerji alanı oluşturur.
-Kalkan aktifken çarpışmalardan etkilenmezsin.
-
----
-
-# 🛠️ Kurulum ve Derleme (Installation & Compilation)
+# 🛠️ Kurulum ve Derleme
 
 Bu proje, derleme süreçlerinin otomatikleştirilmesi ve platformlar arası taşınabilirlik için **CMake** yapılandırma sistemini kullanmaktadır.
 
@@ -147,7 +131,7 @@ Bu proje, derleme süreçlerinin otomatikleştirilmesi ve platformlar arası ta�
 
 Projeyi derlemek için aşağıdaki araçların kurulu olması gerekir:
 
-* **CMake** (3.10 veya üzeri)
+* **CMake**
 * **GCC / MinGW Derleyicisi**
 
   * Windows için **MSYS2 UCRT64** önerilir
@@ -186,7 +170,7 @@ cd asteroids-uzay-macerasi
 1. VS Code içerisine **CMake Tools** eklentisini kurun.
 2. `Ctrl + Shift + P` ile Komut Paleti’ni açın.
 3. `CMake: Select a Kit` komutunu çalıştırın.
-4. Derleyicinizi seçin (`GCC 14.2.0 ucrt64` vb.)
+4. Derleyicinizi seçin
 5. Alt durum çubuğundaki:
 
    * **Build** butonu ile derleyin
@@ -228,6 +212,12 @@ Bu proje:
 * Gerçek zamanlı fizik hesaplamaları,
 * Oyun döngüsü yönetimi,
 * UI sistemleri,
-* CMake tabanlı proje organizasyonu
+* CMake tabanlı proje organizasyonu konularında deneyim kazanmak amacıyla geliştirilmiştir.
 
-konularında deneyim kazanmak amacıyla geliştirilmiştir.
+# Kaynakça 
+
+Bu projede:
+
+* Ses dosyaları = https://kenney.nl/
+* Görseller = https://pngtree.com/
+* Font = Russe one 
