@@ -480,18 +480,18 @@ void baslat()
 
     // arkaplan music değerleri atandı ve başlatıldı
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-    arkaPlanMuzigi = Mix_LoadMUS("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\arkaplan_music2.mp3");
+    arkaPlanMuzigi = Mix_LoadMUS("arkaplan_music2.mp3");
     Mix_VolumeMusic(10); // müzik seviyesi 128 üzerinden 32 ye ayarlandı
     Mix_PlayMusic(arkaPlanMuzigi, -1); //müzik çalmaya başlandı ve sonsuz döngüye atandı -1 değikeni sonsuz döngüye sokuldu
     Mix_AllocateChannels(32);// bu fonksiyon ses kanalı sayısını 8 den 32 ye yükseltir üst üste ses genk geldiğinde tek birini oynatıyordu ondan ekledim 
 
     //sese efektleri belleğe yüklendi
-    ates_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\laser_sound.ogg");
-    patlama_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\astroidexplosive.wav");
-    respawn_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\respawn.wav");
-    click_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\click.ogg");
-    hasar_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\damage.ogg");
-    repair_efekti = Mix_LoadWAV("C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\repair.ogg");
+    ates_efekti = Mix_LoadWAV("laser_sound.ogg");
+    patlama_efekti = Mix_LoadWAV("astroidexplosive.wav");
+    respawn_efekti = Mix_LoadWAV("respawn.wav");
+    click_efekti = Mix_LoadWAV("click.ogg");
+    hasar_efekti = Mix_LoadWAV("damage.ogg");
+    repair_efekti = Mix_LoadWAV("repair.ogg");
 
     int baslangic_ses = 64;
     // ses efekti ses düzeyi ayarları 0 128 arası
@@ -516,51 +516,51 @@ void baslat()
     tuslar = SDL_GetKeyboardState(NULL); // klavye durumunu tutacak pointer oluşturuldu
 
     //gemi dokusu oluşturuldu png olarak kullanamıyoruz o yüzden texture olarak tanımlıyoruz
-    gemi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzaygemisi.png");
-    gemi_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzaygemisi2.png");
-    gemi_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzaygemisi3.png");
+    gemi_Dokusu = IMG_LoadTexture(renderer, "resimler/uzaygemisi.png");
+    gemi_Dokusu2 = IMG_LoadTexture(renderer, "resimler/uzaygemisi2.png");
+    gemi_Dokusu3 = IMG_LoadTexture(renderer, "resimler/uzaygemisi3.png");
     aktif_gemi_Dokusu = gemi_Dokusu;
 
     // asteroit dokuları 
-    asteroit_Dokusu1 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\asteroit.png");
-    asteroit_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\asteroit2.png");
-    asteroit_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\asteroit3.png");
+    asteroit_Dokusu1 = IMG_LoadTexture(renderer, "resimler/asteroit.png");
+    asteroit_Dokusu2 = IMG_LoadTexture(renderer, "resimler/asteroit2.png");
+    asteroit_Dokusu3 = IMG_LoadTexture(renderer, "resimler/asteroit3.png");
 
     //mermi dokusu 
-    mermi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\bullet.png");
+    mermi_Dokusu = IMG_LoadTexture(renderer, "resimler/bullet.png");
 
     //arkaplan dokusu 
-    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzay1.png");
-    arkaPlan_Dokusu2 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzay2.png");
-    arkaPlan_Dokusu3 = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\uzay3.jpg");
+    arkaPlan_Dokusu = IMG_LoadTexture(renderer, "resimler/uzay1.png");
+    arkaPlan_Dokusu2 = IMG_LoadTexture(renderer, "resimler/uzay2.png");
+    arkaPlan_Dokusu3 = IMG_LoadTexture(renderer, "resimler/uzay3.jpg");
     aktif_arkaplan_Dokusu = arkaPlan_Dokusu;
 
     //supplies dokuları
-    repair_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\repair_supp.png");
-    shield_supp_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\shield.png");
-    
+    repair_supp_Dokusu = IMG_LoadTexture(renderer, "resimler/repair_supp.png");
+    shield_supp_Dokusu = IMG_LoadTexture(renderer, "resimler/shield.png");
+
     //yazi dokulari
-    menu_yazisi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\menu_yazisi.png");
-    oyun_modlari_yazisi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\oyun_modlari_yazisi.png");
-    ayarlar_yazisi_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ayarlar_yazisi.png");
+    menu_yazisi_Dokusu = IMG_LoadTexture(renderer, "resimler/menu_yazisi.png");
+    oyun_modlari_yazisi_Dokusu = IMG_LoadTexture(renderer, "resimler/oyun_modlari_yazisi.png");
+    ayarlar_yazisi_Dokusu = IMG_LoadTexture(renderer, "resimler/ayarlar_yazisi.png");
     
     //bos kutu dokusu
-    bos_kutu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\bos_kutu.png");
+    bos_kutu_Dokusu = IMG_LoadTexture(renderer, "resimler/bos_kutu.png");
 
     //buton dokuları
-    basla_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\baslat_butonu.png");
-    ayarlar_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ayarlar_butonu.png");
-    cikis_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\cikis_butonu.png");
-    tekrar_oyna_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\tekra_oyna.png");
-    menu_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\menu_butonu.png");
-    geri_don_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\geri_don.png");
-    ses_arttir_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ses_arttir.png");
-    ses_azalt_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\ses_azalt.png");
-    arkaplan_degistir_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\arka_plan_degistir.png");
-    gemi_degistir_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\gemi_degistir.png");
-    birdk_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\birdk_mod.png");
-    besdk_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\besdk_mod.png");
-    sonsuz_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "C:\\Users\\pc\\Projects\\SDL2_Programlama2\\src\\resimler\\sonsuz_mod.png");
+    basla_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/baslat_butonu.png");
+    ayarlar_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/ayarlar_butonu.png");
+    cikis_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/cikis_butonu.png");
+    tekrar_oyna_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/tekra_oyna.png");
+    menu_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/menu_butonu.png");
+    geri_don_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/geri_don.png");
+    ses_arttir_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/ses_arttir.png");
+    ses_azalt_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/ses_azalt.png");
+    arkaplan_degistir_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/arka_plan_degistir.png");
+    gemi_degistir_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/gemi_degistir.png");
+    birdk_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/birdk_mod.png");
+    besdk_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/besdk_mod.png");
+    sonsuz_mod_butonu_Dokusu = IMG_LoadTexture(renderer, "resimler/sonsuz_mod.png");
 
 
 }
