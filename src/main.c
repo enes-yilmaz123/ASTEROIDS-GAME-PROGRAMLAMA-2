@@ -504,15 +504,18 @@ void baslat()
 
     // pencere pointerının içini dolduruyoruz
     window = SDL_CreateWindow("Asteroids - Uzay Macerasi", 
-                                          SDL_WINDOWPOS_CENTERED, 
-                                          SDL_WINDOWPOS_CENTERED, 
-                                          EKRAN_GENISLIK, EKRAN_YUKSEKLIK,SDL_WINDOW_FULLSCREEN_DESKTOP);
+                                        SDL_WINDOWPOS_CENTERED, 
+                                        SDL_WINDOWPOS_CENTERED, 
+                                        0, 0, 
+                                        SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (!window)
     {
         SDL_Quit();
     }  
     // boyama işlemi için rendererın içini dolduruyoruz
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_RenderSetLogicalSize(renderer, EKRAN_GENISLIK, EKRAN_YUKSEKLIK); // bu fonksiyon farklı çözünürlüklerde oyunun bozulmaması için eklenmiştir
+
     tuslar = SDL_GetKeyboardState(NULL); // klavye durumunu tutacak pointer oluşturuldu
 
     //gemi dokusu oluşturuldu png olarak kullanamıyoruz o yüzden texture olarak tanımlıyoruz
