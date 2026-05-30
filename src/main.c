@@ -302,6 +302,7 @@ int main(int argc, char *argv[])
                             Mix_PlayChannel(-1, click_efekti, 0);
                             puan = 0;
                             can = 100;
+                            baslangic_zamani = SDL_GetTicks();
                             gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
                             mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
                             asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
@@ -313,6 +314,7 @@ int main(int argc, char *argv[])
                             Mix_PlayChannel(-1, click_efekti, 0);
                             puan = 0;
                             can = 100;
+                            baslangic_zamani = SDL_GetTicks();
                             gemi_baslangic(&uzaygemisi); // gemi başlangıç değerleri atandı ve konuma yerleştirildi
                             mermi_baslangic(mermiler); // mermi başlangıç değerleri atandı
                             asteroit_baslangic(asteroitler); // asteroit başlangıç değerleri atandı
